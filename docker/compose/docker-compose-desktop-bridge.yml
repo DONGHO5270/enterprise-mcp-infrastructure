@@ -1,0 +1,87 @@
+version: '3.8'
+
+# Claude Desktop 전용 안전한 MCP 브리지 서비스
+# 포트 3200으로 Claude Code CLI와 완전 분리
+
+x-encoding-env: &encoding-env
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  PYTHONIOENCODING: utf-8
+  TZ: Asia/Seoul
+
+networks:
+  mcp-network:
+    external: true
+
+volumes:
+  desktop-bridge-logs:
+
+services:
+  # Claude Desktop 전용 MCP Router (포트 3200)
+  mcp-desktop-router:
+    build:
+      context: ../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-desktop-router
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    ports:
+      - "3200:3000"  # Claude Desktop 전용 포트
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      LOG_LEVEL: info
+      MAX_CONCURRENT_PROCESSES: 5  # Desktop용 제한
+      REQUEST_TIMEOUT: 45000
+      PROCESS_IDLE_TIMEOUT: 30000
+      SERVICE_NAME: "desktop-router"
+    volumes:
+      # 기존 MCP 서비스들 재사용 (읽기/쓰기 가능)
+      - ../../services/mcp:/app/services/mcp
+      # 독립적인 로그 볼륨
+      - desktop-bridge-logs:/logs
+      # 설정 파일들
+      - ../../configs/api-keys.env:/app/configs/api-keys.env:ro
+      - ../../configs/environment.env:/app/configs/environment.env:ro
+      # 필요한 경우 WSL 접근
+      - /mnt/c:/workspace
+    env_file:
+      - ../../configs/api-keys.env
+      - ../../configs/environment.env
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    # 기존 라우터와 독립 실행
+    depends_on: []
+    
+  # Claude Desktop 브리지 테스트 서비스 (선택적)
+  desktop-bridge-test:
+    image: node:20-alpine
+    container_name: desktop-bridge-test
+    networks:
+      - mcp-network
+    working_dir: /app
+    volumes:
+      - ../../services:/app/services:ro
+    environment:
+      <<: *encoding-env
+      MCP_DESKTOP_ROUTER_URL: "http://mcp-desktop-router:3000"
+      DEBUG: "true"
+    command: |
+      sh -c "
+        echo '🧪 Claude Desktop 브리지 테스트 준비 완료'
+        echo '📡 라우터 URL: http://mcp-desktop-router:3000'
+        echo '🔗 외부 접근: http://localhost:3200'
+        sleep infinity
+      "
+    profiles:
+      - test  # 테스트 시에만 실행 (docker-compose --profile test up)

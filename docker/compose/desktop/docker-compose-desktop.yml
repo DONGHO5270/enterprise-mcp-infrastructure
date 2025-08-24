@@ -1,0 +1,306 @@
+version: '3.8'
+
+# Claude Desktop 전용 MCP 인프라
+# 독립적인 Always-on 아키텍처로 즉각적인 응답 제공
+
+# 전역 인코딩 설정
+x-encoding-env: &encoding-env
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  PYTHONIOENCODING: utf-8
+  TZ: Asia/Seoul
+
+# 리소스 제한 템플릿
+x-resource-limits: &resource-limits
+  deploy:
+    resources:
+      limits:
+        memory: 512M
+        cpus: '0.5'
+      reservations:
+        memory: 256M
+        cpus: '0.25'
+
+networks:
+  mcp-desktop-network:
+    name: mcp-desktop-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+
+volumes:
+  desktop-redis-data:
+  desktop-router-logs:
+  desktop-playwright-browsers:
+  desktop-taskmaster-data:
+  desktop-mermaid-output:
+
+services:
+  # Desktop 전용 MCP Router (Port 3200 - Dedicated for Claude Desktop)
+  mcp-desktop-router:
+    build:
+      context: ../../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-desktop-router
+    restart: always
+    networks:
+      - mcp-desktop-network
+    ports:
+      - "3200:3000"  # Claude Desktop dedicated port (different from Claude Code CLI 3100)
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      PORT: 3000
+      LOG_LEVEL: info
+      MCP_MODE: ondemand  # Use ondemand mode for desktop
+      ROUTER_NAME: claude-desktop
+      MAX_CONCURRENT_PROCESSES: 10
+      REQUEST_TIMEOUT: 120000
+      PROCESS_IDLE_TIMEOUT: 60000
+    volumes:
+      - ../../../services/mcp:/app/services/mcp
+      - desktop-router-logs:/logs
+      - desktop-playwright-browsers:/app/services/mcp/playwright-mcp/browsers
+      - ../../../configs/api-keys.env:/app/configs/api-keys.env:ro
+      - ../../../configs/environment.env:/app/configs/environment.env:ro
+      - /mnt/c:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ../../../configs/api-keys.env
+      - ../../../configs/environment.env
+      - ../../../configs/desktop/desktop.env
+    depends_on:
+      - desktop-redis
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    <<: *resource-limits
+
+  # Desktop 전용 Redis
+  desktop-redis:
+    image: redis:7-alpine
+    container_name: mcp-desktop-redis
+    restart: always
+    networks:
+      - mcp-desktop-network
+    ports:
+      - "6201:6379"
+    volumes:
+      - desktop-redis-data:/data
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Essential Services - Always Running for Instant Response
+
+  # 1. Docker MCP - Always On
+  desktop-docker-mcp:
+    build:
+      context: ../../../services/mcp/docker-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-desktop-docker
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      SERVICE_MODE: always-on
+      MCP_SERVICE_NAME: docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: ["node", "/app/dist/index.js"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    <<: *resource-limits
+
+  # 2. GitHub MCP - Always On
+  desktop-github-mcp:
+    build:
+      context: ../../../services/mcp/github-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-desktop-github
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      SERVICE_MODE: always-on
+      MCP_SERVICE_NAME: github
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    command: ["node", "/app/dist/index.js"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    <<: *resource-limits
+
+  # 3. NPM Sentinel - Always On
+  desktop-npm-sentinel-mcp:
+    build:
+      context: ../../../services/mcp/npm-sentinel-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-desktop-npm-sentinel
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      SERVICE_MODE: always-on
+      MCP_SERVICE_NAME: npm-sentinel
+    command: ["node", "/app/dist/index.js"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    <<: *resource-limits
+
+  # 4. Clear Thought - Always On
+  desktop-clear-thought-mcp:
+    build:
+      context: ../../../services/mcp/clear-thought-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-desktop-clear-thought
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      SERVICE_MODE: always-on
+      MCP_SERVICE_NAME: clear-thought
+    command: ["node", "/app/packages/server/dist/index.js"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    <<: *resource-limits
+
+  # 5. Node Omnibus - Always On
+  desktop-node-omnibus-mcp:
+    build:
+      context: ../../../services/mcp/node-omnibus-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-desktop-node-omnibus
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      SERVICE_MODE: always-on
+      MCP_SERVICE_NAME: node-omnibus
+    command: ["node", "/app/dist/index.js"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    <<: *resource-limits
+
+  # Pre-warming Service - 보조 서비스들을 백그라운드에서 미리 시작
+  desktop-prewarmer:
+    image: alpine:latest
+    container_name: mcp-desktop-prewarmer
+    restart: always
+    networks:
+      - mcp-desktop-network
+    depends_on:
+      - mcp-desktop-router
+    environment:
+      <<: *encoding-env
+      PREWARM_INTERVAL: 300
+      ROUTER_URL: http://mcp-desktop-router:3000
+    command: |
+      sh -c "
+      # 초기 대기
+      sleep 30
+      
+      echo 'Starting desktop prewarmer service...'
+      
+      while true; do
+        echo 'Running pre-warm cycle...'
+        
+        # Pre-warm secondary services
+        for service in vercel supabase taskmaster-ai code-checker serena; do
+          echo \"Pre-warming \$service...\"
+          wget -qO- \$ROUTER_URL/prewarm/\$service || echo \"Failed to prewarm \$service\"
+          sleep 5
+        done
+        
+        echo 'Pre-warm cycle completed'
+        sleep \$PREWARM_INTERVAL
+      done
+      "
+
+  # Health Monitor - 전체 시스템 상태 모니터링
+  desktop-health-monitor:
+    image: alpine:latest
+    container_name: mcp-desktop-health-monitor
+    restart: always
+    networks:
+      - mcp-desktop-network
+    depends_on:
+      - mcp-desktop-router
+    environment:
+      <<: *encoding-env
+      CHECK_INTERVAL: 60
+      ROUTER_URL: http://mcp-desktop-router:3000
+    command: |
+      sh -c "
+      # 초기 대기
+      sleep 10
+      
+      echo 'Starting desktop health monitor...'
+      
+      while true; do
+        timestamp=\$(date '+%Y-%m-%d %H:%M:%S')
+        
+        # Router 헬스체크
+        if wget -qO- \$ROUTER_URL/health > /dev/null 2>&1; then
+          echo \"[\$timestamp] Router: HEALTHY\"
+        else
+          echo \"[\$timestamp] Router: UNHEALTHY\"
+        fi
+        
+        # Essential 서비스 체크
+        for service in docker github npm-sentinel clear-thought node-omnibus; do
+          if wget -qO- \$ROUTER_URL/mcp/\$service -T 5 > /dev/null 2>&1; then
+            echo \"[\$timestamp] \$service: READY\"
+          else
+            echo \"[\$timestamp] \$service: NOT_READY\"
+          fi
+        done
+        
+        sleep \$CHECK_INTERVAL
+      done
+      "
+
+# 개발 및 디버깅용 프로파일
+profiles:
+  dev:
+    mcp-desktop-router:
+      environment:
+        LOG_LEVEL: debug
+    desktop-prewarmer:
+      environment:
+        PREWARM_INTERVAL: 60  # 개발시에는 1분마다

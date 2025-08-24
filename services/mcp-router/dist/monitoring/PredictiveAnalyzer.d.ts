@@ -1,0 +1,40 @@
+import { EventEmitter } from 'events';
+import { PredictiveConfig, PredictiveMetrics } from './types/monitoring';
+export declare class PredictiveAnalyzer extends EventEmitter {
+    private readonly predictiveConfig;
+    private historicalData;
+    private models;
+    private anomalyThresholds;
+    private readonly MAX_HISTORY_SIZE;
+    private ANOMALY_Z_SCORE_THRESHOLD;
+    constructor(config: PredictiveConfig);
+    private initialize;
+    analyze(serviceId: string, metrics: any): Promise<PredictiveMetrics>;
+    private generateRealPrediction;
+    private createLSTMModel;
+    private performTimeSeriesForecast;
+    private generateStatisticalPrediction;
+    private performAnomalyDetection;
+    private analyzeTrends;
+    private calculateTrend;
+    private recognizePatterns;
+    private analyzeHourlyPattern;
+    private analyzeWeeklyPattern;
+    private detectSeasonality;
+    private calculateACF;
+    private addToHistory;
+    private normalizeData;
+    private denormalizeValue;
+    private calculateMAPE;
+    private generateIntelligentRecommendations;
+    private generateStatisticalRecommendations;
+    private generateDefaultPatterns;
+    private generateSkeletonPrediction;
+    private generateMockRecommendations;
+    trainModel(serviceId: string): Promise<boolean>;
+    private prepareTrainingData;
+    updateModelParameters(serviceId: string, parameters: any): boolean;
+    start(): void;
+    stop(): void;
+}
+//# sourceMappingURL=PredictiveAnalyzer.d.ts.map

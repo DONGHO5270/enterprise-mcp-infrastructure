@@ -1,0 +1,56 @@
+version: '3.8'
+
+# Claude Desktop MCP Router - Separate instance on port 3200
+# This is separate from the Claude Code CLI router on port 3100
+
+x-encoding-env: &encoding-env
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  PYTHONIOENCODING: utf-8
+  TZ: Asia/Seoul
+
+networks:
+  mcp-network:
+    external: true
+
+volumes:
+  mcp-desktop-router-logs:
+  playwright-browsers:
+  taskmaster-data:
+  mermaid-output:
+
+services:
+  # MCP Desktop Router - for Claude Desktop (port 3200)
+  mcp-desktop-router:
+    build:
+      context: ../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-desktop-router
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    ports:
+      - "3200:3000"  # Claude Desktop uses port 3200
+    environment:
+      <<: *encoding-env
+      NODE_ENV: production
+      LOG_LEVEL: info
+      MAX_CONCURRENT_PROCESSES: 10
+      REQUEST_TIMEOUT: 70000
+      PROCESS_IDLE_TIMEOUT: 60000
+    volumes:
+      # MCP services mount
+      - ../../services/mcp:/app/services/mcp
+      # Log volume
+      - mcp-desktop-router-logs:/logs
+      # Playwright browser cache
+      - playwright-browsers:/app/services/mcp/playwright-mcp/browsers
+      # Config files
+      - ../../configs/api-keys.env:/app/configs/api-keys.env:ro
+      - ../../configs/environment.env:/app/configs/environment.env:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

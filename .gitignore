@@ -1,0 +1,174 @@
+# 🧹 GitHub 저장소 정리용 .gitignore
+# Infrastructure-Only 전략: 분석 보고서는 제외하고 핵심 인프라만 공개
+
+# === 분석 및 보고서 문서 ===
+# 비즈니스 분석 문서들 (내부용)
+*-ANALYSIS*.md
+*-REPORT*.md
+*-STRATEGY*.md
+*-PLAN*.md
+*BUSINESS*.md
+*REVENUE*.md
+*MONETIZATION*.md
+*ROI*.md
+*VALUATION*.md
+
+# 특정 분석 문서들
+COMPREHENSIVE-*.md
+EXECUTABLE-*.md
+HDAP-*.md
+MCP-*.md
+PHASE-*.md
+KFOOD-*.md
+CLOUDFLARE-*.md
+CURSOR-*.md
+WORDPRESS-*.md
+MONITORING-*.md
+
+# 한국어 문서들 (내부 검토용)
+*-분석*.md
+*-보고서*.md
+*-전략*.md
+*-요약*.md
+*한국어*.md
+
+# 실험/임시 파일들
+stochastic-*.json
+clear-thought-*.json
+*-test-*.json
+*-analysis*.json
+
+# Windows 관련 설정 (크로스 플랫폼 호환성 위해 제외)
+*.ps1
+*.bat
+*.cmd
+add-*.ps1
+setup-*.ps1
+fix-*.ps1
+test-*.ps1
+*-powershell*
+*windows*
+
+# 임시 스크립트들
+create-*.sh
+create-*.py
+*-temp*
+*-emergency*
+*-restore*
+*-cleanup*
+*-backup*
+
+# 개인/로컬 설정
+.claude-cli-config.json
+.wslconfig
+*profile*.ps1
+*alias*.ps1
+
+# === 보존할 핵심 파일들 ===
+# 절대 제외하지 말 것:
+!README.md
+!CLAUDE.md
+!LICENSE
+!CONTRIBUTING.md
+!CHANGELOG.md
+!docker-compose*.yml
+!package.json
+!package-lock.json
+
+# 핵심 인프라 코드
+!services/
+!scripts/
+!docs/
+!configs/
+
+# === Node.js ===
+node_modules/
+npm-debug.log*
+.env.local
+
+# === Docker ===
+.docker/
+
+# === IDE/Editor ===
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+logs/
+*.log
+
+# === 특별 제외 (복잡한 분석 문서) ===
+*ULTRA-*
+*DETAILED-*
+*FINAL-*
+*ULTIMATE-*
+*MASTER-*
+
+# === CRITICAL: 추가 위험 패턴들 ===
+# 더 포괄적인 비즈니스 문서 차단
+*DUAL-REVENUE*
+*FREE-MODEL*
+*MARKET-COMPARISON*
+*OPENSOURCE-TO-PAID*
+*PASSIVE-INCOME*
+*VALUE-PRESERVATION*
+*MINIMAL-RESOURCE*
+
+# 상태 파일들
+.state/
+*.state
+
+# 임시 설정 파일들  
+.gitignore-production
+*-production
+
+# 한국어 특수 문서들 (더 포괄적)
+*한국어*
+*요약*
+*분석*
+*보고서*
+*권장사항*
+*검토*
+*타당성*
+*통합*
+*최종*
+*반응*
+*시나리오*
+
+# === CRITICAL: 개인정보 및 Windows 경로 파일들 ===
+# Windows 절대 경로가 포함된 모든 파일 차단 (따옴표 포함/제외 둘 다)
+"C:\\*"
+C:\\*
+*C:\\Users\\*
+*Users\\dongho1\\*
+*dongho1\\*
+*"C:\\*"
+
+# Git의 따옴표 처리 문제 해결
+*claude-development\\*
+*KFoodTimerMobile\\*
+*kfood-timer-mobile\\*
+
+# 개인 정보가 포함된 파일들
+*신라면*
+*역설계*
+*개인*
+*비밀*
+*private*
+
+# 테스트 파일들
+test-*.html
+debug-*.js
+debug-*.html
+
+# Emergency/Recovery 스크립트들
+*EMERGENCY*
+*RECOVERY*
+*RESTORE*
+*ULTIMATE-FIX*

@@ -1,0 +1,89 @@
+version: '3.8'
+
+# MCP 테스트 배포용 (일부 서비스만)
+
+x-mcp-common: &mcp-common
+  restart: unless-stopped
+  networks:
+    - mcp-network
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+  environment:
+    - NODE_ENV=production
+    - LANG=C.UTF-8
+    - LC_ALL=C.UTF-8
+
+networks:
+  mcp-network:
+    external: true
+
+services:
+  # 1. Supabase MCP - API 키가 준비됨
+  supabase-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-supabase
+    working_dir: /app
+    environment:
+      - SUPABASE_URL=${SUPABASE_MCP_URL}
+      - SUPABASE_KEY=${SUPABASE_MCP_KEY}
+      - SUPABASE_PROJECT_REF=${SUPABASE_MCP_PROJECT_REF}
+      - SUPABASE_ACCESS_TOKEN=${SUPABASE_MCP_ACCESS_TOKEN}
+      - PORT=8013
+    ports:
+      - "8013:8013"
+    volumes:
+      - ../../services/mcp/supabase-mcp:/app
+    command: sh -c "npm install && npm start || node index.js || node server.js"
+
+  # 2. Vercel MCP - API 키가 준비됨
+  vercel-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-vercel
+    working_dir: /app
+    environment:
+      - VERCEL_ID=${VERCEL_MCP_ID}
+      - VERCEL_ACCESS_TOKEN=${VERCEL_MCP_ACCESS_TOKEN}
+      - PORT=8011
+    ports:
+      - "8011:8011"
+    volumes:
+      - ../../services/mcp/vercel-mcp:/app
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js"
+
+  # 3. Mermaid MCP - API 키 불필요
+  mermaid-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-mermaid
+    working_dir: /app
+    environment:
+      - PORT=8019
+    ports:
+      - "8019:8019"
+    volumes:
+      - ../../services/mcp/mermaid-mcp:/app
+      - mermaid-output:/app/output
+    command: sh -c "npm install && npm start || node index.js || node server.js"
+
+  # 4. NPM Sentinel MCP - API 키 불필요
+  npm-sentinel-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-npm-sentinel
+    working_dir: /app
+    environment:
+      - NPM_REGISTRY_URL=${NPM_REGISTRY_URL}
+      - PORT=8016
+    ports:
+      - "8016:8016"
+    volumes:
+      - ../../services/mcp/npm-sentinel-mcp:/app
+    command: sh -c "npm install && npm start || node index.js || node server.js"
+
+volumes:
+  mermaid-output:

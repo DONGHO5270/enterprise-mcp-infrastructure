@@ -1,0 +1,306 @@
+version: '3.8'
+
+# MCP 서비스 전용 Docker Compose 파일
+
+x-mcp-common: &mcp-common
+  restart: unless-stopped
+  networks:
+    - mcp-network
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+  environment:
+    - NODE_ENV=production
+    - LANG=C.UTF-8
+    - LC_ALL=C.UTF-8
+
+networks:
+  mcp-network:
+    external: true
+
+services:
+  # 1. GitHub MCP
+  github-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/github-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-github
+    environment:
+      - GITHUB_TOKEN=${GITHUB_MCP_TOKEN}
+      - PORT=8001
+    ports:
+      - "8001:8001"
+
+  # 2. Serena MCP (Python)
+  serena-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/serena-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-serena
+    environment:
+      - PORT=8002
+    ports:
+      - "8002:8002"
+    volumes:
+      - /mnt/c:/workspace:ro
+
+  # 3. Playwright MCP
+  playwright-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/playwright-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-playwright
+    environment:
+      - PORT=8003
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    ports:
+      - "8003:8003"
+    volumes:
+      - playwright-browsers:/ms-playwright
+
+  # 4. Serper Search MCP
+  serper-search-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/serper-search-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-serper-search
+    environment:
+      - SERPER_API_KEY=${SERPER_MCP_API_KEY}
+      - PORT=8004
+    ports:
+      - "8004:8004"
+
+  # 5. Desktop Commander MCP
+  desktop-commander-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/desktop-commander-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-desktop-commander
+    environment:
+      - ALLOWED_PATHS=${DESKTOP_COMMANDER_ALLOWED_PATHS}
+      - PORT=8005
+    ports:
+      - "8005:8005"
+    volumes:
+      - /mnt/c:/workspace
+
+  # 6. Clear Thought MCP
+  clear-thought-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/clear-thought-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-clear-thought
+    environment:
+      - PORT=8006
+    ports:
+      - "8006:8006"
+
+  # 7. Context7 MCP
+  context7-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/context7-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-context7
+    environment:
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+      - PORT=8007
+    ports:
+      - "8007:8007"
+
+  # 8. Taskmaster AI MCP
+  taskmaster-ai-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/taskmaster-ai-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-taskmaster-ai
+    environment:
+      - ANTHROPIC_API_KEY=${TASKMASTER_ANTHROPIC_API_KEY}
+      - PORT=8008
+    ports:
+      - "8008:8008"
+    volumes:
+      - taskmaster-data:/data
+
+  # 9. Stochastic Thinking MCP
+  stochastic-thinking-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/stochastic-thinking-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-stochastic-thinking
+    environment:
+      - PORT=8009
+    ports:
+      - "8009:8009"
+
+  # 10. Vercel MCP
+  vercel-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/vercel-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-vercel
+    environment:
+      - VERCEL_ID=${VERCEL_MCP_ID}
+      - VERCEL_ACCESS_TOKEN=${VERCEL_MCP_ACCESS_TOKEN}
+      - PORT=8010
+    ports:
+      - "8010:8010"
+
+  # 11. Code Runner MCP
+  code-runner-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/code-runner-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-code-runner
+    environment:
+      - PORT=8011
+      - SANDBOX_MEMORY_LIMIT=256M
+      - SANDBOX_TIMEOUT=30000
+    ports:
+      - "8011:8011"
+    security_opt:
+      - seccomp:unconfined
+
+  # 12. Supabase MCP
+  supabase-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/supabase-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-supabase
+    environment:
+      - SUPABASE_URL=${SUPABASE_MCP_URL}
+      - SUPABASE_KEY=${SUPABASE_MCP_KEY}
+      - SUPABASE_PROJECT_REF=${SUPABASE_MCP_PROJECT_REF}
+      - SUPABASE_ACCESS_TOKEN=${SUPABASE_MCP_ACCESS_TOKEN}
+      - PORT=8012
+    ports:
+      - "8012:8012"
+
+  # 13. NodeJS Debugger MCP
+  nodejs-debugger-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/nodejs-debugger-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-nodejs-debugger
+    environment:
+      - PORT=8013
+      - DEBUG_PORT=9229
+    ports:
+      - "8013:8013"
+      - "9229:9229"
+    volumes:
+      - /mnt/c:/workspace
+
+  # 14. Code Checker MCP (Python)
+  code-checker-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/code-checker-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-code-checker
+    environment:
+      - PORT=8014
+    ports:
+      - "8014:8014"
+    volumes:
+      - /mnt/c:/workspace
+
+  # 15. NPM Sentinel MCP
+  npm-sentinel-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/npm-sentinel-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-npm-sentinel
+    environment:
+      - NPM_REGISTRY_URL=${NPM_REGISTRY_URL}
+      - PORT=8015
+    ports:
+      - "8015:8015"
+
+  # 16. Node Omnibus MCP
+  node-omnibus-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/node-omnibus-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-node-omnibus
+    environment:
+      - PORT=8016
+    ports:
+      - "8016:8016"
+    volumes:
+      - /mnt/c:/workspace
+
+  # 17. 21st.dev Magic MCP
+  21stdev-magic-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/21stdev-magic-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-21stdev-magic
+    environment:
+      - TWENTY_FIRST_API_KEY=${TWENTY_FIRST_MCP_API_KEY}
+      - PORT=8017
+    ports:
+      - "8017:8017"
+
+  # 18. Mermaid MCP
+  mermaid-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/mermaid-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-mermaid
+    environment:
+      - PORT=8018
+    ports:
+      - "8018:8018"
+    volumes:
+      - mermaid-output:/output
+
+  # 19. Code Context Provider MCP
+  code-context-provider-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/code-context-provider-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-code-context-provider
+    environment:
+      - PORT=8019
+    ports:
+      - "8019:8019"
+    volumes:
+      - /mnt/c:/workspace:ro
+
+  # 20. Mem0 MCP (Python)
+  mem0-mcp:
+    <<: *mcp-common
+    build:
+      context: ../../services/mcp/mem0-mcp
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-mem0
+    environment:
+      - MEM0_API_KEY=${MEM0_API_KEY}
+      - PORT=8020
+    ports:
+      - "8020:8020"
+
+volumes:
+  playwright-browsers:
+  taskmaster-data:
+  mermaid-output:

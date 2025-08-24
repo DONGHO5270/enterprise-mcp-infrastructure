@@ -1,0 +1,39 @@
+# Claude Desktop Individual Ports Configuration
+# Each MCP service gets its own port (3201-3221)
+
+version: '3.8'
+services:
+  mcp-router-desktop:
+    image: mcp-router:latest
+    container_name: mcp-router-desktop
+    ports:
+      - '3201:3100'
+      - '3202:3100'
+      - '3203:3100'
+      - '3204:3100'
+      - '3205:3100'
+      - '3206:3100'
+      - '3207:3100'
+      - '3208:3100'
+      - '3209:3100'
+      - '3210:3100'
+      - '3211:3100'
+      - '3212:3100'
+      - '3213:3100'
+      - '3214:3100'
+      - '3215:3100'
+      - '3216:3100'
+      - '3217:3100'
+      - '3218:3100'
+      - '3219:3100'
+      - '3220:3100'
+      - '3221:3100'
+    environment:
+      NODE_ENV: production
+      PORT: '3100'
+    networks:
+      - mcp-network
+    restart: unless-stopped
+networks:
+  mcp-network:
+    external: true

@@ -1,0 +1,71 @@
+FROM node:18-slim
+
+# Python 3 설치
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 패키지 설치 (mem0 MCP 및 기타 Python MCP용)
+RUN pip3 install --no-cache-dir --break-system-packages \
+    mem0ai>=0.1.55 \
+    httpx>=0.28.1 \
+    "mcp[cli]>=1.5.0" \
+    fastmcp>=0.4.1 \
+    jinja2 \
+    pydantic>=2.10.6 \
+    aiofiles \
+    asyncio \
+    pylint \
+    flake8 \
+    requests>=2.32.3 \
+    pyright>=1.1.396 \
+    overrides>=7.7.0 \
+    python-dotenv>=1.0.0 \
+    sensai-utils>=1.4.0 \
+    types-pyyaml>=6.0.12 \
+    pyyaml>=6.0.2 \
+    "ruamel.yaml>=0.18.0" \
+    pathspec>=0.12.1 \
+    psutil>=7.0.0 \
+    agno>=1.2.15 \
+    docstring_parser>=0.16 \
+    joblib>=1.5.1 \
+    jedi-language-server \
+    fastapi \
+    uvicorn
+
+# Deno 설치 (Code Runner MCP용)
+RUN apt-get update && apt-get install -y curl unzip \
+    && curl -fsSL https://deno.land/x/install/install.sh | sh \
+    && mv /root/.deno/bin/deno /usr/local/bin/ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Playwright 브라우저 설치 (Playwright MCP용)
+RUN npx playwright install-deps chromium
+
+WORKDIR /app
+
+# 패키지 파일 복사
+COPY package*.json ./
+RUN npm ci --only=production
+
+# tsx 설치 (GitHub MCP용)
+RUN npm install -g tsx
+
+# 소스 코드 복사
+COPY . .
+
+# TypeScript 컴파일
+RUN npm run build
+
+# Note: MCP services are mounted as volumes at runtime, not copied during build
+
+# 테스트 MCP 생성
+COPY test-simple-mcp.js /app/
+
+EXPOSE 3000
+
+CMD ["node", "dist/index.js"]

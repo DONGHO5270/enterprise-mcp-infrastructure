@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Claude Desktop dedicated MCP Router (port 3200)
+  mcp-router-desktop:
+    build:
+      context: ../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-router-desktop
+    restart: unless-stopped
+    ports:
+      - "3200:3000"  # Claude Desktop dedicated port
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - LOG_LEVEL=info
+      - MCP_MODE=ondemand
+      - ROUTER_NAME=claude-desktop
+    volumes:
+      # Mount service directories for on-demand execution
+      - ../../services/mcp:/app/services/mcp:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      # API keys
+      - ../../configs/api-keys.env:/app/configs/api-keys.env:ro
+      # Logs
+      - ../../logs:/app/logs
+    env_file:
+      - ../../configs/api-keys.env
+    networks:
+      - mcp-desktop-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  mcp-desktop-network:
+    driver: bridge
+    name: mcp-desktop-network

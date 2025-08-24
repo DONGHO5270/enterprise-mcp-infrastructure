@@ -1,0 +1,242 @@
+version: '3.8'
+
+# 실용적인 14종 MCP 서비스 Docker Compose 파일
+
+x-mcp-common: &mcp-common
+  restart: unless-stopped
+  networks:
+    - mcp-network
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+  environment:
+    - NODE_ENV=production
+    - LANG=C.UTF-8
+    - LC_ALL=C.UTF-8
+
+networks:
+  mcp-network:
+    external: true
+
+services:
+  # 1. Serena MCP (Python) - 프로젝트 관리 및 코드 탐색
+  serena-mcp:
+    <<: *mcp-common
+    image: python:3.11-slim
+    container_name: mcp-serena
+    working_dir: /app
+    environment:
+      - PORT=8002
+    ports:
+      - "8002:8002"
+    volumes:
+      - ../../services/mcp/serena-mcp:/app
+      - /mnt/c:/workspace:ro
+    command: sh -c "pip install -r requirements.txt 2>/dev/null || pip install . && python -m mcp_server || python server.py || python main.py"
+
+  # 2. Clear Thought MCP - 구조화된 사고 도구
+  clear-thought-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-clear-thought
+    working_dir: /app
+    environment:
+      - PORT=8006
+    ports:
+      - "8006:8006"
+    volumes:
+      - ../../services/mcp/clear-thought-mcp:/app
+    command: sh -c "cd packages/server-clear-thought 2>/dev/null || cd . && npm install && npm run build || true && npm start || node dist/index.js || node index.js"
+
+  # 3. Context7 MCP - 라이브러리 문서 접근
+  context7-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-context7
+    working_dir: /app
+    environment:
+      - PORT=8007
+    ports:
+      - "8007:8007"
+    volumes:
+      - ../../services/mcp/context7-mcp:/app
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js"
+
+  # 4. Taskmaster AI MCP - PRD 분석 및 작업 관리
+  taskmaster-ai-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-taskmaster-ai
+    working_dir: /app
+    environment:
+      - ANTHROPIC_API_KEY=${TASKMASTER_ANTHROPIC_API_KEY}
+      - PORT=8009
+    ports:
+      - "8009:8009"
+    volumes:
+      - ../../services/mcp/taskmaster-ai-mcp:/app
+      - taskmaster-data:/app/data
+    command: sh -c "npm install && node mcp-server/server.js"
+
+  # 5. Stochastic Thinking MCP - 확률적 사고 도구
+  stochastic-thinking-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-stochastic-thinking
+    working_dir: /app
+    environment:
+      - PORT=8010
+    ports:
+      - "8010:8010"
+    volumes:
+      - ../../services/mcp/stochastic-thinking-mcp:/app
+    command: sh -c "cd packages/server-stochasticthinking 2>/dev/null || cd . && npm install && npm run build || true && npm start || node dist/index.js || node index.js"
+
+  # 6. Vercel MCP - Vercel 플랫폼 관리
+  vercel-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-vercel
+    working_dir: /app
+    environment:
+      - VERCEL_ID=${VERCEL_MCP_ID}
+      - VERCEL_ACCESS_TOKEN=${VERCEL_MCP_ACCESS_TOKEN}
+      - PORT=8011
+    ports:
+      - "8011:8011"
+    volumes:
+      - ../../services/mcp/vercel-mcp:/app
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js || node src/index.js"
+
+  # 7. Code Runner MCP - 코드 실행 샌드박스
+  code-runner-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-code-runner
+    working_dir: /app
+    environment:
+      - PORT=8012
+      - SANDBOX_MEMORY_LIMIT=256M
+      - SANDBOX_TIMEOUT=30000
+    ports:
+      - "8012:8012"
+    volumes:
+      - ../../services/mcp/code-runner-mcp:/app
+    security_opt:
+      - seccomp:unconfined
+    command: sh -c "cd packages/code-runner-mcp 2>/dev/null || cd . && npm install && npm run build || true && npm start || node dist/index.js || node index.js"
+
+  # 8. Supabase MCP - Supabase 데이터베이스 관리
+  supabase-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-supabase
+    working_dir: /app
+    environment:
+      - SUPABASE_URL=${SUPABASE_MCP_URL}
+      - SUPABASE_KEY=${SUPABASE_MCP_KEY}
+      - SUPABASE_PROJECT_REF=${SUPABASE_MCP_PROJECT_REF}
+      - SUPABASE_ACCESS_TOKEN=${SUPABASE_MCP_ACCESS_TOKEN}
+      - PORT=8013
+    ports:
+      - "8013:8013"
+    volumes:
+      - ../../services/mcp/supabase-mcp:/app
+    command: sh -c "cd packages/mcp-server-supabase && npm install && npm run build && node ./dist/transports/stdio.js"
+
+  # 9. NodeJS Debugger MCP - Node.js 디버깅
+  nodejs-debugger-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-nodejs-debugger
+    working_dir: /app
+    environment:
+      - PORT=8014
+      - DEBUG_PORT=9229
+    ports:
+      - "8014:8014"
+      - "9229:9229"
+    volumes:
+      - ../../services/mcp/nodejs-debugger-mcp:/app
+      - /mnt/c:/workspace
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js"
+
+  # 10. Code Checker MCP (Python) - 코드 품질 검사
+  code-checker-mcp:
+    <<: *mcp-common
+    image: python:3.11-slim
+    container_name: mcp-code-checker
+    working_dir: /app
+    environment:
+      - PORT=8015
+    ports:
+      - "8015:8015"
+    volumes:
+      - ../../services/mcp/code-checker-mcp:/app
+      - /mnt/c:/workspace
+    command: sh -c "pip install -r requirements.txt 2>/dev/null || pip install . && python -m mcp_server || python server.py || python main.py"
+
+  # 11. NPM Sentinel MCP - NPM 패키지 분석
+  npm-sentinel-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-npm-sentinel
+    working_dir: /app
+    environment:
+      - NPM_REGISTRY_URL=${NPM_REGISTRY_URL}
+      - PORT=8016
+    ports:
+      - "8016:8016"
+    volumes:
+      - ../../services/mcp/npm-sentinel-mcp:/app
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js || node src/index.js"
+
+  # 12. Node Omnibus MCP - Node.js 프로젝트 관리
+  node-omnibus-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-node-omnibus
+    working_dir: /app
+    environment:
+      - PORT=8017
+    ports:
+      - "8017:8017"
+    volumes:
+      - ../../services/mcp/node-omnibus-mcp:/app
+      - /mnt/c:/workspace
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js || node src/index.js"
+
+  # 13. 21st.dev Magic MCP - UI 컴포넌트 생성
+  21stdev-magic-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-21stdev-magic
+    working_dir: /app
+    environment:
+      - TWENTY_FIRST_API_KEY=${TWENTY_FIRST_MCP_API_KEY}
+      - PORT=8018
+    ports:
+      - "8018:8018"
+    volumes:
+      - ../../services/mcp/21stdev-magic-mcp:/app
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js || node src/index.js"
+
+  # 14. Code Context Provider MCP - 코드 컨텍스트 분석
+  code-context-provider-mcp:
+    <<: *mcp-common
+    image: node:18-alpine
+    container_name: mcp-code-context-provider
+    working_dir: /app
+    environment:
+      - PORT=8020
+    ports:
+      - "8020:8020"
+    volumes:
+      - ../../services/mcp/code-context-provider-mcp:/app
+      - /mnt/c:/workspace:ro
+    command: sh -c "npm install && npm run build || true && npm start || node dist/index.js || node index.js || node src/index.js"
+
+volumes:
+  taskmaster-data:

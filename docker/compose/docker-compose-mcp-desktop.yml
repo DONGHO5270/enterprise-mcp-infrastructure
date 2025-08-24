@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # Claude Desktop 전용 MCP Router
+  mcp-desktop-router:
+    build:
+      context: ../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-desktop-router
+    restart: always
+    networks:
+      - mcp-desktop-network
+    ports:
+      - "3101:3000"  # Desktop 전용 포트
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_URL=redis://desktop-redis:6379
+      - LOG_LEVEL=info
+      - MCP_MODE=desktop-optimized
+      - PREWARM_ENABLED=true
+      - PREWARM_SERVICES=docker,github,npm-sentinel,clear-thought,node-omnibus
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - desktop-redis
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Claude Desktop 전용 Redis
+  desktop-redis:
+    image: redis:7-alpine
+    container_name: mcp-desktop-redis
+    restart: always
+    networks:
+      - mcp-desktop-network
+    ports:
+      - "6201:6379"  # Desktop 전용 포트
+    volumes:
+      - desktop-redis-data:/data
+
+  # Pre-warmed Essential Services (Always Running)
+  
+  # Docker MCP - Always On
+  desktop-docker-mcp:
+    image: docker-mcp:latest
+    container_name: mcp-desktop-docker
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      - NODE_ENV=production
+      - SERVICE_MODE=always-on
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: ["node", "/app/dist/index.js"]
+
+  # GitHub MCP - Always On
+  desktop-github-mcp:
+    image: github-mcp:latest
+    container_name: mcp-desktop-github
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      - NODE_ENV=production
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - SERVICE_MODE=always-on
+    command: ["node", "/app/dist/index.js"]
+
+  # Clear Thought MCP - Always On
+  desktop-clear-thought-mcp:
+    image: clear-thought-mcp:latest
+    container_name: mcp-desktop-clear-thought
+    restart: always
+    networks:
+      - mcp-desktop-network
+    environment:
+      - NODE_ENV=production
+      - SERVICE_MODE=always-on
+    command: ["node", "/app/packages/server/dist/index.js"]
+
+  # Pre-warming Service
+  desktop-prewarmer:
+    image: alpine:latest
+    container_name: mcp-desktop-prewarmer
+    restart: always
+    networks:
+      - mcp-desktop-network
+    depends_on:
+      - mcp-desktop-router
+    command: |
+      sh -c "
+      while true; do
+        # Pre-warm secondary services every 5 minutes
+        sleep 300
+        # Trigger initialization for less-used services
+        wget -qO- http://mcp-desktop-router:3000/prewarm || true
+      done
+      "
+
+networks:
+  mcp-desktop-network:
+    name: mcp-desktop-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16  # 다른 서브넷 사용
+
+volumes:
+  desktop-redis-data:

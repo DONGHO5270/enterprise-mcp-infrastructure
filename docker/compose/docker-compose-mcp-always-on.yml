@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # MCP Router - Always On
+  mcp-router:
+    build:
+      context: ../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-router-always-on
+    restart: always
+    networks:
+      - mcp-network
+    ports:
+      - "3100:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=info
+      - MCP_MODE=always-on  # 온디맨드 비활성화
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    restart: always
+    networks:
+      - mcp-network
+    ports:
+      - "6200:6379"
+    volumes:
+      - redis-data:/data
+
+  # Essential MCP Services - Always Running
+  
+  # 1. Docker MCP
+  docker-mcp:
+    image: docker-mcp:latest
+    container_name: mcp-docker
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: ["node", "/app/dist/index.js"]
+
+  # 2. GitHub MCP  
+  github-mcp:
+    image: github-mcp:latest
+    container_name: mcp-github
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    command: ["node", "/app/dist/index.js"]
+
+  # 3. NPM Sentinel
+  npm-sentinel-mcp:
+    image: npm-sentinel-mcp:latest
+    container_name: mcp-npm-sentinel
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+    command: ["node", "/app/dist/index.js"]
+
+  # 4. Clear Thought
+  clear-thought-mcp:
+    image: clear-thought-mcp:latest
+    container_name: mcp-clear-thought
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+    command: ["node", "/app/packages/server/dist/index.js"]
+
+  # 5. Node Omnibus
+  node-omnibus-mcp:
+    image: node-omnibus-mcp:latest
+    container_name: mcp-node-omnibus
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+    command: ["node", "/app/dist/index.js"]
+
+  # 6. Vercel
+  vercel-mcp:
+    image: vercel-mcp:latest
+    container_name: mcp-vercel
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+    command: ["node", "/app/dist/index.js"]
+
+  # 7. Code Checker
+  code-checker-mcp:
+    image: code-checker-mcp:latest
+    container_name: mcp-code-checker
+    restart: always
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+    command: ["python", "/app/src/main.py"]
+
+  # Add more essential services as needed...
+
+networks:
+  mcp-network:
+    name: mcp-network
+    driver: bridge
+
+volumes:
+  redis-data:
