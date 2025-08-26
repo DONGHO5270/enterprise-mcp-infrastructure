@@ -1,14 +1,26 @@
 # 🚀 Unified MCP Infrastructure
 
-> **286 verified AI tools. One infrastructure. Zero hassle.**
+> ⚠️ **IMPORTANT NOTICE: Infrastructure Development in Progress** ⚠️
 > 
-> The most comprehensive and battle-tested MCP (Model Context Protocol) infrastructure ever built.
+> This repository contains the **core infrastructure and router** for managing 23 MCP services (286 tools).
+> The actual MCP service implementations are currently being reconstructed for the public release.
+> 
+> **Current Status:**
+> - ✅ Router and infrastructure code: **Complete**
+> - ✅ Docker configuration: **Complete**
+> - ✅ Documentation: **Complete**
+> - 🚧 MCP service implementations: **In progress** (services/mcp/* folders not yet included)
+> 
+> **What this means for you:**
+> - The infrastructure code is production-ready
+> - You will need to add your own MCP services to /services/mcp/
+> - Or wait for our next release with example services (ETA: 1-2 weeks)
 
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://docker.com)
 [![MCP Protocol](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io)
 [![Cross Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20WSL-lightgrey.svg)]()
 [![Dual License](https://img.shields.io/badge/license-MIT%20%7C%20Commercial-blue.svg)](#-license-options)
-[![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green.svg)](#-commercial-license)
+[![Status](https://img.shields.io/badge/status-infrastructure%20only-orange.svg)]()
 
 ## ✨ What Makes This Special?
 
@@ -31,23 +43,37 @@ Unlike other MCP implementations that promise but don't deliver, **every single 
 - **macOS**: Full compatibility
 - **Zero path conflicts** - the #1 cause of MCP failures
 
-## 🎯 Quick Start (1 minute)
+## 🎯 Quick Start
 
+### ⚠️ Current Limitations
+Since MCP service implementations are not yet included, you'll need to:
+
+1. **Option A**: Add your own MCP services to `/services/mcp/`
+2. **Option B**: Wait for our example release (coming soon)
+3. **Option C**: Use this as a learning resource for building your own infrastructure
+
+### Infrastructure Setup (What Works Now)
 ```bash
 # Clone the infrastructure
-git clone https://github.com/yourusername/unified-mcp-infrastructure
-cd unified-mcp-infrastructure
+git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
+cd enterprise-mcp-infrastructure
 
-# Start all services (Docker required)
+# Review the infrastructure code
+ls -la services/mcp-router/src/
+
+# Note: Docker compose will fail without MCP services in /services/mcp/
+# This is expected - the infrastructure needs services to route to
+```
+
+### Adding Your Own MCP Services
+```bash
+# 1. Create service directory
+mkdir -p services/mcp/your-service
+
+# 2. Add your MCP implementation
+# 3. Update mcp-services.ts configuration
+# 4. Then start with Docker:
 docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d
-
-# Verify all services are healthy
-curl http://localhost:3100/health
-
-# Test a specific service (e.g., Vercel with 69 tools)
-curl -X POST http://localhost:3100/mcp/vercel \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":"test","method":"tools/list","params":{}}'
 ```
 
 ## 📊 Service Overview
