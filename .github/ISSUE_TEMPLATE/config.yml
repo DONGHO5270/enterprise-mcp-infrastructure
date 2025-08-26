@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Community Discussions
+    url: https://github.com/DONGHO5270/enterprise-mcp-infrastructure/discussions
+    about: Ask questions and share ideas with the community
+  - name: 📧 Email Contact
+    url: mailto:your-email@example.com
+    about: For private inquiries or partnership opportunities
