@@ -1,20 +1,18 @@
 # 🚀 Unified MCP Infrastructure
 
-> ⚠️ **IMPORTANT NOTICE: Infrastructure Development in Progress** ⚠️
+> 🎉 **DEMO BRANCH: Working Example Services** 🎉
 > 
-> This repository contains the **core infrastructure and router** for managing 23 MCP services (286 tools).
-> The actual MCP service implementations are currently being reconstructed for the public release.
+> This demo branch includes **3 fully functional MCP services** to demonstrate the infrastructure.
 > 
-> **Current Status:**
-> - ✅ Router and infrastructure code: **Complete**
-> - ✅ Docker configuration: **Complete**
-> - ✅ Documentation: **Complete**
-> - 🚧 MCP service implementations: **In progress** (services/mcp/* folders not yet included)
+> **Demo Services Available:**
+> - ✅ **echo-mcp**: Echo and text manipulation (3 tools)
+> - ✅ **math-mcp**: Mathematical operations (4 tools)  
+> - ✅ **time-mcp**: Time and date utilities (4 tools)
 > 
-> **What this means for you:**
-> - The infrastructure code is production-ready
-> - You will need to add your own MCP services to /services/mcp/
-> - Or wait for our next release with example services (ETA: 1-2 weeks)
+> **Total: 11 working tools** ready to test!
+> 
+> **Note:** The full 286-tool suite across 23 services is available in our production environment.
+> This demo provides a minimal working example for learning and testing.
 
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://docker.com)
 [![MCP Protocol](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io)
@@ -43,38 +41,47 @@ Unlike other MCP implementations that promise but don't deliver, **every single 
 - **macOS**: Full compatibility
 - **Zero path conflicts** - the #1 cause of MCP failures
 
-## 🎯 Quick Start
+## 🎯 Quick Start - Demo Services Working!
 
-### ⚠️ Current Limitations
-Since MCP service implementations are not yet included, you'll need to:
-
-1. **Option A**: Add your own MCP services to `/services/mcp/`
-2. **Option B**: Wait for our example release (coming soon)
-3. **Option C**: Use this as a learning resource for building your own infrastructure
-
-### Infrastructure Setup (What Works Now)
+### ✅ Working Demo (This Branch)
 ```bash
-# Clone the infrastructure
-git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
+# Clone the demo branch
+git clone -b demo-services https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Review the infrastructure code
-ls -la services/mcp-router/src/
-
-# Note: Docker compose will fail without MCP services in /services/mcp/
-# This is expected - the infrastructure needs services to route to
-```
-
-### Adding Your Own MCP Services
-```bash
-# 1. Create service directory
-mkdir -p services/mcp/your-service
-
-# 2. Add your MCP implementation
-# 3. Update mcp-services.ts configuration
-# 4. Then start with Docker:
+# Start the demo services
 docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d
+
+# Test echo service
+curl -X POST http://localhost:3100/mcp/echo-mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"test","method":"tools/call","params":{"name":"echo","arguments":{"message":"Hello MCP!"}}}'
+
+# Test math service
+curl -X POST http://localhost:3100/mcp/math-mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"test","method":"tools/call","params":{"name":"add","arguments":{"a":10,"b":20}}}'
+
+# Test time service
+curl -X POST http://localhost:3100/mcp/time-mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"test","method":"tools/call","params":{"name":"current_time","arguments":{"format":"readable"}}}'
 ```
+
+### 📋 Demo Service Tools
+| Service | Tool | Description |
+|---------|------|-------------|
+| **echo-mcp** | echo | Echo back messages |
+| | reverse | Reverse text |
+| | uppercase | Convert to uppercase |
+| **math-mcp** | add | Add two numbers |
+| | multiply | Multiply numbers |
+| | factorial | Calculate factorial |
+| | fibonacci | Generate sequence |
+| **time-mcp** | current_time | Get current time |
+| | time_difference | Calculate time diff |
+| | add_days | Add days to date |
+| | timezone_convert | Convert timezones |
 
 ## 📊 Service Overview
 

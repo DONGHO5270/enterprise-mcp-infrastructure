@@ -1,0 +1,42 @@
+version: '3.8'
+
+# Demo MCP Services Docker Compose
+# Minimal working example with 3 functional services
+
+networks:
+  mcp-network:
+    driver: bridge
+
+services:
+  # MCP Router - Central routing service
+  mcp-router:
+    build:
+      context: ../../services/mcp-router
+      dockerfile: Dockerfile
+    container_name: mcp-router-demo
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    ports:
+      - "3100:3000"
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: info
+      MAX_CONCURRENT_PROCESSES: 5
+      REQUEST_TIMEOUT: 30000
+      PROCESS_IDLE_TIMEOUT: 60000
+    volumes:
+      # Mount demo MCP services
+      - ../../services/mcp:/app/services/mcp:ro
+      # Mount configuration
+      - ../../services/mcp-router/src/config:/app/src/config:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
