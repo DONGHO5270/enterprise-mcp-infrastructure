@@ -43,36 +43,42 @@ Unlike other MCP implementations that promise but don't deliver, **every single 
 - **macOS**: Full compatibility
 - **Zero path conflicts** - the #1 cause of MCP failures
 
-## 🎯 Quick Start
+## ⚡ Quick Start (60 seconds)
 
-### ⚠️ Current Limitations
-Since MCP service implementations are not yet included, you'll need to:
-
-1. **Option A**: Add your own MCP services to `/services/mcp/`
-2. **Option B**: Wait for our example release (coming soon)
-3. **Option C**: Use this as a learning resource for building your own infrastructure
-
-### Infrastructure Setup (What Works Now)
+### 🎉 **Try Our Working Demo!** 
 ```bash
-# Clone the infrastructure
+# Get the demo branch with 3 working services (11 tools)
+git clone -b demo-services https://github.com/DONGHO5270/enterprise-mcp-infrastructure
+cd enterprise-mcp-infrastructure
+
+# Start the demo services
+docker-compose -f docker/compose/docker-compose-demo.yml up -d
+
+# Test it works!
+curl -X POST http://localhost:3100/mcp/echo-mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"test","method":"tools/call","params":{"name":"echo","arguments":{"message":"Hello!"}}}'
+```
+
+### 📦 What's Available?
+
+| Branch | What You Get | Use Case |
+|--------|-------------|----------|
+| **main** | Infrastructure only | Learn the architecture |
+| **demo-services** ⭐ | 3 working services | Test and play |
+| **Coming soon** | 23 full services | Production deployment |
+
+### 🔧 Build Your Own
+```bash
+# Start from main branch
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Review the infrastructure code
-ls -la services/mcp-router/src/
-
-# Note: Docker compose will fail without MCP services in /services/mcp/
-# This is expected - the infrastructure needs services to route to
-```
-
-### Adding Your Own MCP Services
-```bash
-# 1. Create service directory
+# Add your service
 mkdir -p services/mcp/your-service
+# Copy structure from demo-services branch examples
 
-# 2. Add your MCP implementation
-# 3. Update mcp-services.ts configuration
-# 4. Then start with Docker:
+# Configure and run
 docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d
 ```
 
