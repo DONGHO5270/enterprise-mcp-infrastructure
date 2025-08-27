@@ -242,41 +242,28 @@ Infrastructure approach:
 
 ### **🎯 Real-World Usage Scenarios**
 
-#### **Web Development Project**
+#### **Any Development Project**
 ```bash
-# Call required services
-curl -X POST http://localhost:3100/mcp/vercel    # Deployment
-curl -X POST http://localhost:3100/mcp/supabase  # Database
-curl -X POST http://localhost:3100/mcp/github    # Code management
+# Call your added services as needed
+curl -X POST http://localhost:3100/mcp/{service-1}
+curl -X POST http://localhost:3100/mcp/{service-2}
+curl -X POST http://localhost:3100/mcp/{service-3}
 
 # Benefits:
 - On-demand: Only needed services activate
 - Traditional: All services always running
 - Massive improvement in token efficiency
+- No limit on number of services you can add
 ```
 
-#### **DevOps Tasks**
-```bash
-# Activate only required services
-curl -X POST http://localhost:3100/mcp/docker      # Containers
-curl -X POST http://localhost:3100/mcp/cloudflare  # DNS/CDN
-
-# Benefits:
-- Minimal resource usage
-- Services activate only when needed
-- Auto-cleanup after task completion
+#### **Infrastructure Benefits for Any MCP**
 ```
-
-#### **Mobile Development**
-```bash
-# Mobile testing services
-curl -X POST http://localhost:3100/mcp/mobile     # App testing
-curl -X POST http://localhost:3100/mcp/playwright # UI testing
-
-# Benefits:
-- Lightweight execution
-- Fast response time
-- Efficient resource management
+When you add any MCP service, the infrastructure provides:
+- Automatic dependency installation
+- Graceful failure handling
+- Cross-platform compatibility
+- Resource optimization
+- Health monitoring
 ```
 
 ---
@@ -325,36 +312,34 @@ This infrastructure provides enterprise-grade reliability and management for MCP
 - **Fallback System**: Minimal servers maintain protocol compliance during failures
 - **Health Monitoring**: Continuous service health checks and auto-recovery
 
-### **📦 Example MCP Services You Can Add**
+### **📦 How to Add Your MCP Services**
 
-**Note**: These are examples of services successfully tested with this infrastructure. The infrastructure provides reliability layers for any MCP service you add.
+This infrastructure is an empty framework - you add the MCP services you need. Any standard MCP service can be integrated.
 
-| Category | Service Examples | Original Developer | What Infrastructure Adds |
-|----------|-----------------|-------------------|-------------------------|
-| **Development** | Vercel (69 tools) | Vercel Team | Container wrapping, health checks |
-| | Docker (27 tools) | Docker Team | Multi-platform compatibility |
-| | GitHub (8 tools) | GitHub Team | Dependency management |
-| **Database** | Supabase (26 tools) | Supabase Team | Build failure handling |
-| | Cloudflare (3 tools) | Cloudflare Team | API key management |
-| **Testing** | Playwright (10 tools) | Microsoft Team | Browser binary management |
-| | Mobile (17 tools) | Mobile-Next Team | Device connection handling |
-| **AI/Analytics** | Clear Thought (9 tools) | Clear Thought Team | Protocol compliance |
-| | Taskmaster AI (25 tools) | Taskmaster Team | Resource optimization |
+**Steps to add a service:**
+1. Clone your desired MCP service into `/services/mcp/` directory
+2. Configure in `/services/mcp-router/src/config/mcp-services.ts`
+3. The infrastructure automatically provides:
+   - Container isolation
+   - Dependency management
+   - Fallback mechanisms
+   - Health monitoring
+   - Multi-platform compatibility
 
-**All services become accessible via unified `/mcp/{service-name}` endpoints**
+**All added services become accessible via unified `/mcp/{service-name}` endpoints**
 
 ---
 
 ## 🎯 **How It Actually Works**
 
-### **Scenario: Deploy React App to Vercel with Supabase**
+### **Scenario: Using Multiple MCP Services**
 
 #### **Traditional MCP Usage (Token Overload)**
 ```
 1. 🤔 Can only select 3-5 MCPs in Claude Desktop
-2. 🔍 Configure Vercel MCP → Give up other MCPs
+2. 🔍 Configure one MCP → Give up others
 3. 🔧 Need to restart every configuration change
-4. 💭 Need Supabase too but have to sacrifice another
+4. 💭 Need another service but have to sacrifice existing ones
 5. 😰 Massive token occupation limits actual work
 6. ⏰ Takes 20+ minutes just for MCP selection and setup
 ```
@@ -364,12 +349,11 @@ This infrastructure provides enterprise-grade reliability and management for MCP
 # 1. Run unified infrastructure with Docker (once)
 docker-compose up -d
 
-# 2. Call needed service APIs
-curl -X POST http://localhost:3100/mcp/vercel \
-  -d '{"method":"tools/call","params":{"name":"deploy"}}'
-
-curl -X POST http://localhost:3100/mcp/supabase \
-  -d '{"method":"tools/call","params":{"name":"create_database"}}'
+# 2. Add your MCP services to /services/mcp/
+# 3. Configure in mcp-services.ts
+# 4. Call any service via unified API
+curl -X POST http://localhost:3100/mcp/{your-service} \
+  -d '{"method":"tools/call","params":{"name":"your-tool"}}'
 
 # Results:
 ✅ On-demand execution of only needed services
@@ -757,41 +741,28 @@ AI: Docker MCP를 사용하여 컨테이너 목록을 확인하겠습니다...
 
 ### **🎯 실제 사용 시나리오**
 
-#### **웹 개발 프로젝트**
+#### **모든 개발 프로젝트**
 ```bash
-# 필요한 서비스 호출
-curl -X POST http://localhost:3100/mcp/vercel    # 배포용
-curl -X POST http://localhost:3100/mcp/supabase  # DB용
-curl -X POST http://localhost:3100/mcp/github    # 코드 관리
+# 추가한 서비스를 필요에 따라 호출
+curl -X POST http://localhost:3100/mcp/{service-1}
+curl -X POST http://localhost:3100/mcp/{service-2}
+curl -X POST http://localhost:3100/mcp/{service-3}
 
 # 효과:
 - 온디맨드: 필요한 서비스만 활성화
 - 기존 방식: 모든 서비스 상시 실행
 - 토큰 효율성 대폭 개선
+- 추가할 수 있는 서비스 수 제한 없음
 ```
 
-#### **DevOps 작업**
-```bash
-# 필요한 서비스만 활성화
-curl -X POST http://localhost:3100/mcp/docker      # 컨테이너
-curl -X POST http://localhost:3100/mcp/cloudflare  # DNS/CDN
-
-# 효과:
-- 최소한의 리소스 사용
-- 필요시에만 서비스 활성화
-- 작업 완료 후 자동 정리
+#### **모든 MCP에 제공되는 인프라 혜택**
 ```
-
-#### **모바일 개발**
-```bash
-# 모바일 테스트 서비스
-curl -X POST http://localhost:3100/mcp/mobile     # 앱 테스트
-curl -X POST http://localhost:3100/mcp/playwright # UI 테스트
-
-# 효과:
-- 경량 실행 환경
-- 빠른 응답 속도
-- 효율적인 리소스 관리
+MCP 서비스를 추가하면 인프라가 자동으로 제공:
+- 자동 의존성 설치
+- Graceful 장애 처리
+- 크로스 플랫폼 호환성
+- 리소스 최적화
+- 헬스 모니터링
 ```
 
 ---
@@ -840,36 +811,34 @@ curl -X POST http://localhost:3100/mcp/playwright # UI 테스트
 - **Fallback 시스템**: 장애 시 프로토콜 준수를 위한 최소 서버
 - **헬스 모니터링**: 지속적인 서비스 상태 확인 및 자동 복구
 
-### **📦 추가 가능한 MCP 서비스 예시**
+### **📦 MCP 서비스 추가 방법**
 
-**참고**: 이것은 인프라와 성공적으로 테스트된 서비스 예시입니다. 인프라는 추가하는 모든 MCP 서비스에 신뢰성 레이어를 제공합니다.
+이 인프라는 빈 프레임워크입니다 - 필요한 MCP 서비스를 직접 추가하세요. 모든 표준 MCP 서비스를 통합할 수 있습니다.
 
-| 카테고리 | 서비스 예시 | 원본 개발팀 | 인프라가 추가하는 기능 |
-|----------|------------|------------|----------------------|
-| **개발** | Vercel (69개 도구) | Vercel 팀 | 컨테이너 래핑, 헬스 체크 |
-| | Docker (27개 도구) | Docker 팀 | 멀티 플랫폼 호환성 |
-| | GitHub (8개 도구) | GitHub 팀 | 의존성 관리 |
-| **데이터베이스** | Supabase (26개 도구) | Supabase 팀 | 빌드 실패 처리 |
-| | Cloudflare (3개 도구) | Cloudflare 팀 | API 키 관리 |
-| **테스트** | Playwright (10개 도구) | Microsoft 팀 | 브라우저 바이너리 관리 |
-| | Mobile (17개 도구) | Mobile-Next 팀 | 디바이스 연결 처리 |
-| **AI/분석** | Clear Thought (9개 도구) | Clear Thought 팀 | 프로토콜 준수 |
-| | Taskmaster AI (25개 도구) | Taskmaster 팀 | 리소스 최적화 |
+**서비스 추가 단계:**
+1. 원하는 MCP 서비스를 `/services/mcp/` 디렉토리에 클론
+2. `/services/mcp-router/src/config/mcp-services.ts`에 설정 추가
+3. 인프라가 자동으로 제공하는 기능:
+   - 컨테이너 격리
+   - 의존성 관리
+   - Fallback 메커니즘
+   - 헬스 모니터링
+   - 멀티 플랫폼 호환성
 
-**모든 서비스는 통합된 `/mcp/{service-name}` 엔드포인트로 접근 가능**
+**추가한 모든 서비스는 통합된 `/mcp/{service-name}` 엔드포인트로 접근 가능**
 
 ---
 
 ## 🎯 **실제 작동 방식**
 
-### **시나리오: React 앱을 Vercel에 배포하고 Supabase 연동**
+### **시나리오: 여러 MCP 서비스 사용**
 
 #### **기존 MCP 사용 방식 (토큰 과부하)**
 ```
 1. 🤔 Claude Desktop에 3-5개 MCP만 선택 가능
-2. 🔍 Vercel MCP 설정 → 다른 MCP 포기
+2. 🔍 하나의 MCP 설정 → 다른 것들 포기
 3. 🔧 설정 변경 시마다 재시작 필요
-4. 💭 Supabase 추가하려면 또 다른 것 포기
+4. 💭 다른 서비스 필요하면 기존 것 포기
 5. 😰 대량의 토큰 점유로 실제 작업 제한
 6. ⏰ MCP 선택과 설정에 20분 이상 소요
 ```
@@ -879,12 +848,11 @@ curl -X POST http://localhost:3100/mcp/playwright # UI 테스트
 # 1. Docker로 통합 인프라 실행 (한 번만)
 docker-compose up -d
 
-# 2. 필요한 서비스 API 호출
-curl -X POST http://localhost:3100/mcp/vercel \
-  -d '{"method":"tools/call","params":{"name":"deploy"}}'
-
-curl -X POST http://localhost:3100/mcp/supabase \
-  -d '{"method":"tools/call","params":{"name":"create_database"}}'
+# 2. MCP 서비스를 /services/mcp/에 추가
+# 3. mcp-services.ts에 설정
+# 4. 통합 API로 모든 서비스 호출
+curl -X POST http://localhost:3100/mcp/{your-service} \
+  -d '{"method":"tools/call","params":{"name":"your-tool"}}'
 
 # 결과:
 ✅ 온디맨드로 필요한 서비스만 실행
