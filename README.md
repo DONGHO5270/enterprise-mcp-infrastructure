@@ -470,6 +470,8 @@ cd enterprise-mcp-infrastructure && docker-compose up -d
 
 ### 💡 *"Stop choosing. Start building."*
 
+⭐ **If this infrastructure saved you time, please consider giving it a star to help others discover it.**
+
 </div>
 
 ---
@@ -968,6 +970,8 @@ cd enterprise-mcp-infrastructure && docker-compose up -d
 **[📖 GitHub](https://github.com/DONGHO5270/enterprise-mcp-infrastructure) | [🐛 Issues](https://github.com/DONGHO5270/enterprise-mcp-infrastructure/issues) | [💬 Discussions](https://github.com/DONGHO5270/enterprise-mcp-infrastructure/discussions)**
 
 ### 💡 *"Stop choosing. Start building."*
+
+⭐ **이 인프라가 도움이 되었다면, 다른 개발자들도 발견할 수 있도록 star를 주시면 감사하겠습니다.**
 
 </div>
 
