@@ -1,9 +1,11 @@
 # 🚀 Stop Choosing. Start Building.
 
 > **Only 3-5 MCPs in Claude Desktop? Token overflow in Cursor AI?**  
-> **Now use all MCP services without selection fatigue**
+> **Build unified infrastructure for all your MCP services**
 > 
 > Massive token savings · On-demand execution · Docker-based unified infrastructure
+> 
+> ⚠️ **Note**: This is an infrastructure framework. MCP services are not included - you add your own.
 
 [![Choice Liberation](https://img.shields.io/badge/Choice_Liberation-Stop_Choosing-brightgreen)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
 [![Token Savings](https://img.shields.io/badge/Token_Savings-Optimized-blue)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
@@ -51,11 +53,11 @@
 
 ### **🚀 After: Liberation from Choice**
 ```
-✅ Unified access to all MCP services and tools
+✅ Unified management for all MCP services you add
 ✅ Maximize token efficiency for more work
 ✅ On-demand execution activates only needed services
 ✅ Isolated Docker containers prevent conflicts
-✅ Instant access to all MCPs via API calls
+✅ Instant access to your MCPs via API calls
 ```
 
 ---
@@ -114,20 +116,17 @@ docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml logs -f mcp-rou
 ```bash
 # 1. Health check
 curl http://localhost:3100/health
-# Success response example: {"status":"healthy","services":number} 
+# Success response: {"status":"healthy","router":"running"} 
 
-# 2. List services
-curl http://localhost:3100/services
-# Shows installed MCP services list in JSON format
+# 2. Infrastructure is ready - now add your MCP services
+# See docs/ADDING-MCP-SERVICES.md for guide
 
-# 3. Test specific service example
-curl -X POST http://localhost:3100/mcp/npm-sentinel \
+# 3. After adding services, test them:
+curl -X POST http://localhost:3100/mcp/{your-service} \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":"test","method":"tools/list","params":{}}'
-# Returns list of tools for the service
+# Returns tools list if service is properly configured
 
-# 4. Test all services (optional)
-./scripts/test-all-services.sh  # If available
 ```
 
 ### **🎯 Step 4: Platform-Specific Integration**
@@ -233,10 +232,11 @@ Traditional MCP approach:
 - All MCPs always running → Massive token occupation
 - Insufficient tokens for actual work → Degraded AI quality
 
-On-demand approach:
-- Only needed MCPs run → Minimal token usage
+Our infrastructure approach:
+- Only services you need run → Minimal token usage
 - More tokens for actual work → Improved AI quality
 - Significant memory savings → Reduced system load
+- Tested with 334 tools across 23 services → Proven scalability
 ```
 
 ### **🎯 Real-World Usage Scenarios**
@@ -302,7 +302,9 @@ Just call what you need via API."
 
 ## 🛠️ **Unified MCP Service Structure**
 
-### **📦 Example MCP Services Included**
+### **📦 Example MCP Services You Can Add**
+
+**Note**: These are examples of services tested with this infrastructure. You need to add the ones you want to use.
 
 #### **Development Tools**
 - **Vercel**: Web app deployment and hosting
@@ -324,7 +326,7 @@ Just call what you need via API."
 - **Taskmaster AI**: AI-based task management
 - **Serena**: Code search and analysis
 
-**All services accessible via `/mcp/{service-name}` endpoints**
+**All services you add become accessible via `/mcp/{service-name}` endpoints**
 
 ---
 
@@ -497,9 +499,11 @@ cd enterprise-mcp-infrastructure && docker-compose up -d
 # 🚀 Stop Choosing. Start Building.
 
 > **Claude Desktop에서 3-5개만? Cursor AI에서 토큰 오버플로우?**  
-> **이제 모든 MCP 서비스를 선택 고민 없이 사용하세요**
+> **모든 MCP 서비스를 위한 통합 인프라를 구축하세요**
 > 
 > 토큰 대폭 절약 · 온디맨드 실행 · Docker 기반 통합 인프라
+> 
+> ⚠️ **참고**: 이것은 인프라 프레임워크입니다. MCP 서비스는 포함되지 않으며 직접 추가해야 합니다.
 
 [![선택 해방](https://img.shields.io/badge/Choice_Liberation-Stop_Choosing-brightgreen)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
 [![토큰 절약](https://img.shields.io/badge/Token_Savings-Optimized-blue)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
@@ -547,11 +551,11 @@ cd enterprise-mcp-infrastructure && docker-compose up -d
 
 ### **🚀 After: 선택 해방**
 ```
-✅ 모든 MCP 서비스와 도구들을 통합 접근
+✅ 추가한 모든 MCP 서비스를 통합 관리
 ✅ 토큰 효율성 극대화로 더 많은 작업 가능
 ✅ 온디맨드 실행으로 필요한 서비스만 활성화
 ✅ Docker 컨테이너로 충돌 없는 격리 환경
-✅ API 호출로 모든 MCP 서비스 즉시 사용
+✅ API 호출로 추가한 MCP 서비스 즉시 사용
 ```
 
 ---
@@ -610,20 +614,17 @@ docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml logs -f mcp-rou
 ```bash
 # 1. 헬스 체크
 curl http://localhost:3100/health
-# 성공 응답 예시: {"status":"healthy","services":숫자} 
+# 성공 응답: {"status":"healthy","router":"running"} 
 
-# 2. 서비스 목록 확인
-curl http://localhost:3100/services
-# 설치된 MCP 서비스 목록이 JSON 형태로 표시됨
+# 2. 인프라 준비 완료 - 이제 MCP 서비스를 추가하세요
+# docs/ADDING-MCP-SERVICES.md 가이드 참조
 
-# 3. 특정 서비스 테스트 예시
-curl -X POST http://localhost:3100/mcp/npm-sentinel \
+# 3. 서비스 추가 후 테스트:
+curl -X POST http://localhost:3100/mcp/{your-service} \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":"test","method":"tools/list","params":{}}'
-# 해당 서비스의 도구 목록이 반환됨
+# 서비스가 제대로 설정되면 도구 목록 반환
 
-# 4. 전체 서비스 테스트 (선택사항)
-./scripts/test-all-services.sh  # 있는 경우
 ```
 
 ### **🎯 Step 4: 플랫폼별 연동 설정**
@@ -729,10 +730,11 @@ AI: Docker MCP를 사용하여 컨테이너 목록을 확인하겠습니다...
 - 모든 MCP가 상시 실행 → 대량의 토큰 상시 점유
 - 실제 작업용 토큰 부족 → AI 품질 저하
 
-온디맨드 방식:
-- 필요한 MCP만 실행 → 최소한의 토큰만 사용
+우리 인프라 방식:
+- 필요한 서비스만 실행 → 최소한의 토큰만 사용
 - 더 많은 작업용 토큰 확보 → AI 품질 향상
 - 메모리 대폭 절약 → 시스템 부담 감소
+- 23개 서비스 334개 도구로 테스트 → 확장성 입증
 ```
 
 ### **🎯 실제 사용 시나리오**
@@ -799,7 +801,9 @@ curl -X POST http://localhost:3100/mcp/playwright # UI 테스트
 
 ## 🛠️ **통합 MCP 서비스 구조**
 
-### **📦 포함된 MCP 서비스 예시**
+### **📦 추가 가능한 MCP 서비스 예시**
+
+**참고**: 이것은 인프라와 호환되는 서비스 예시입니다. 원하는 서비스를 직접 추가해야 합니다.
 
 #### **개발 도구**
 - **Vercel**: 웹 앱 배포 및 호스팅
@@ -821,7 +825,7 @@ curl -X POST http://localhost:3100/mcp/playwright # UI 테스트
 - **Taskmaster AI**: AI 기반 작업 관리
 - **Serena**: 코드 검색 및 분석
 
-**모든 서비스는 `/mcp/{service-name}` 엔드포인트로 접근 가능**
+**추가한 모든 서비스는 `/mcp/{service-name}` 엔드포인트로 접근 가능**
 
 ---
 
