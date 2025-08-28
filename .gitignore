@@ -1,6 +1,11 @@
 # 🧹 GitHub 저장소 정리용 .gitignore
 # Infrastructure-Only 전략: 분석 보고서는 제외하고 핵심 인프라만 공개
 
+# === Claude 설정 파일 ===
+CLAUDE.md
+claude.md
+.claude/
+
 # === 분석 및 보고서 문서 ===
 # 비즈니스 분석 문서들 (내부용)
 *-ANALYSIS*.md
@@ -172,3 +177,4 @@ debug-*.html
 *RECOVERY*
 *RESTORE*
 *ULTIMATE-FIX*
+CLAUDE.md

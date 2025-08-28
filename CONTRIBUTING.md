@@ -1,20 +1,20 @@
-# 🤝 Contributing to Unified MCP Infrastructure
+# 🤝 Contributing to MCP Infrastructure Framework
 
-Thank you for your interest in contributing! This project maintains **282 verified AI tools** across 23 MCP services, and we're committed to keeping quality and transparency as our top priorities.
+Thank you for your interest in contributing! This project provides **infrastructure for MCP services**. Note that MCP services themselves are not included - this is an empty framework that users populate with their own services.
 
 ## 🎯 Our Standards
 
 ### ✅ What We Accept
-- **Verified, working tools only** - No stubs, no simulators
-- **Production-ready services** - Must handle real workloads
-- **Cross-platform compatible** - Works on Windows, Linux, macOS
-- **Well-documented** - Clear setup and usage instructions
+- **Infrastructure improvements** - Docker setup, routing optimization
+- **Documentation improvements** - Installation guides, architecture docs
+- **Bug fixes** - Router, container, or infrastructure issues
+- **Cross-platform compatibility** - Improvements for Windows, Linux, macOS
 
 ### ❌ What We Don't Accept
-- Proof-of-concept implementations
-- Services with broken or mock tools
-- Platform-specific solutions only
-- Undocumented or hard-to-setup services
+- MCP service implementations (those belong in separate repositories)
+- Business logic beyond infrastructure scope
+- AI features beyond basic infrastructure
+- Service-specific code (this is infrastructure only)
 
 ## 🚀 Getting Started
 
@@ -40,15 +40,15 @@ docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d
 
 ## 🔧 Types of Contributions
 
-### 1. Adding a New MCP Service
+### 1. Improving Infrastructure for MCP Services
 
-#### Requirements Checklist
-- [ ] Service has **5+ working tools minimum**
-- [ ] All tools have proper JSON-RPC schemas
-- [ ] Service starts within 10 seconds
-- [ ] No external API keys required for basic functionality
-- [ ] Works in Docker container
-- [ ] Has automated tests
+#### Infrastructure Enhancement Checklist
+- [ ] Enhancement improves reliability or performance
+- [ ] Changes are compatible with existing architecture
+- [ ] Docker configuration is optimized
+- [ ] Cross-platform compatibility is maintained
+- [ ] Documentation is updated
+- [ ] No service-specific logic added
 
 #### Step-by-Step Process
 1. **Create service directory**
@@ -89,9 +89,9 @@ docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d
    ```
 
 6. **Update documentation**
-   - Add to README.md service table
-   - Update tool counts in CLAUDE.md
-   - Document any special setup requirements
+   - Update infrastructure guides
+   - Document configuration changes
+   - Add troubleshooting tips if applicable
 
 ### 2. Improving Existing Services
 
@@ -143,7 +143,7 @@ time docker-compose up your-service
 - [ ] All tests pass
 - [ ] Documentation updated
 - [ ] No breaking changes to existing services
-- [ ] Tool count in CLAUDE.md is accurate
+- [ ] Infrastructure changes are documented
 - [ ] Cross-platform compatibility verified
 
 ### 2. PR Description Template
@@ -152,7 +152,7 @@ time docker-compose up your-service
 Brief description of changes
 
 ## Type of Change
-- [ ] New MCP service (X tools added)
+- [ ] Infrastructure improvement
 - [ ] Bug fix
 - [ ] Performance improvement
 - [ ] Documentation update
@@ -163,9 +163,9 @@ Brief description of changes
 - [ ] All existing services still work
 - [ ] Added automated tests
 
-## Tools Added/Changed
-- Service: X tools
-- Total project tools: XXX (update count)
+## Infrastructure Changes
+- Components affected: (list components)
+- Performance impact: (describe if applicable)
 
 ## Breaking Changes
 None / List any breaking changes
@@ -177,25 +177,26 @@ None / List any breaking changes
 3. **Integration testing** - Full service stack verification
 4. **Documentation review** - Accuracy and completeness
 
-## 🔄 Service Quality Tiers
+## 🔄 Infrastructure Quality Standards
 
-When adding services, aim for higher tiers:
+All infrastructure contributions should meet:
 
-### 🏆 Tier 1 (15+ tools)
-- Production-grade reliability
-- Comprehensive API coverage
-- Extensive documentation
+### 🏆 Production Quality
+- High reliability and uptime
+- Efficient resource usage
+- Comprehensive error handling
 - Performance optimized
 
-### 🛠️ Tier 2 (5-14 tools)
-- Solid functionality
-- Good documentation
-- Basic performance requirements
+### 🛠️ Documentation Quality
+- Clear architecture diagrams
+- Step-by-step setup guides
+- Troubleshooting sections
+- API documentation
 
-### 🔧 Tier 3 (1-4 tools)
-- Specialized use cases
-- Basic functionality
-- Minimal requirements
+### 🔧 Testing Standards
+- Unit tests for critical paths
+- Integration tests for Docker setup
+- Cross-platform verification
 
 ## 🌟 Recognition
 
