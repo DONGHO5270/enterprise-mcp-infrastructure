@@ -1,12 +1,12 @@
 # 🏗️ Infrastructure Guide
 
-> ⚠️ **Important**: This is an infrastructure framework. MCP services are NOT included.
+> 💡 **통합 MCP 관리시스템**: 강력한 오케스트레이션 플랫폼
 > 
-> This guide explains the infrastructure capabilities and how to add your own MCP services.
+> 이 가이드는 시스템의 핵심 기능과 사용자의 MCP 서비스 통합 방법을 설명합니다.
 
-## 📋 What This Infrastructure Provides
+## 📋 시스템이 제공하는 핵심 기능
 
-### **Core Infrastructure Components**
+### **핵심 인프라 구성요소**
 
 #### **1. Docker Container Orchestration**
 - Isolated environment for each MCP service

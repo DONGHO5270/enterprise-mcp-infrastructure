@@ -1,36 +1,38 @@
-# 🏗️ **통합 MCP 인프라 프레임워크**
+# 🎯 **통합 MCP 관리시스템**
 
-> **빈 인프라 프레임워크 - 당신의 MCP 서비스를 위한 Docker 기반 관리 시스템**
+> **모든 MCP 서비스를 하나의 강력한 인프라로 통합 관리**
 > 
-> ⚠️ **중요**: 이것은 빈 프레임워크입니다. MCP 서비스는 포함되지 않습니다.
-> 사용자가 자신의 MCP 서비스를 추가하여 사용하는 인프라입니다.
+> 터미널 점유 AI 관리 · Docker 격리 실행 · 온디맨드 리소스 최적화
+> 
+> 💡 **참고**: MCP 서비스는 사용자가 필요에 따라 선택하여 추가합니다.
 
-[![Framework](https://img.shields.io/badge/Type-Infrastructure_Framework-yellow)](https://github.com/your-repo/mcp-infrastructure)
-[![Docker](https://img.shields.io/badge/Docker-Required-blue)](https://www.docker.com/)
-[![Terminal AI](https://img.shields.io/badge/Terminal-AI_Managed-orange)](https://github.com/your-repo/mcp-infrastructure)
+[![Platform](https://img.shields.io/badge/Type-Management_System-green)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
+[![Docker](https://img.shields.io/badge/Docker-Orchestration-blue)](https://www.docker.com/)
+[![Terminal AI](https://img.shields.io/badge/Terminal-AI_Managed-orange)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
+[![Architecture](https://img.shields.io/badge/Architecture-OnDemand-success)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure)
 
 ---
 
 ## 🎯 **이 프로젝트는 무엇인가요?**
 
-**통합 MCP 인프라**는 여러 MCP(Model Context Protocol) 서비스를 관리하기 위한 **빈 인프라 프레임워크**입니다.
+**통합 MCP 관리시스템**은 여러 MCP(Model Context Protocol) 서비스를 Docker 기반으로 통합 관리하는 **강력한 오케스트레이션 플랫폼**입니다.
 
-### ✅ **프레임워크가 제공하는 것**
+### ✅ **시스템이 제공하는 핵심 기능**
 - 🤖 **터미널 점유 AI 관리**: Claude Code가 터미널을 통해 MCP 환경 관리
 - 🐳 **Docker 오케스트레이션**: 모든 MCP 서비스를 컨테이너로 격리 실행
 - 🚀 **온디맨드 아키텍처**: 필요한 서비스만 자동으로 시작/종료
 - 🔌 **통합 라우터**: 단일 포트(3100)로 모든 서비스 접근
 - 📝 **설정 템플릿**: MCP 서비스 추가를 위한 템플릿 제공
 
-### ❌ **프레임워크가 제공하지 않는 것**
-- ❌ **MCP 서비스**: 사용자가 직접 추가해야 함
-- ❌ **API 키**: 각 서비스별 API 키는 직접 설정
-- ❌ **사전 구성된 도구**: 빈 프레임워크로 도구 없음
-- ❌ **즉시 사용 가능한 기능**: 서비스 설치 및 설정 필요
+### 📦 **사용자가 추가하는 것**
+- 📌 **MCP 서비스**: 필요한 서비스를 선택하여 추가
+- 🔑 **API 키**: 각 서비스별 API 키 설정
+- 🎯 **커스텀 도구**: 프로젝트에 맞는 MCP 선택
+- ⚙️ **환경 설정**: 서비스별 세부 설정
 
 ---
 
-## 🤔 **왜 이 프레임워크가 필요한가요?**
+## 🤔 **왜 이 관리시스템이 필요한가요?**
 
 ### **문제: MCP 서비스 관리의 복잡성**
 ```
@@ -40,7 +42,7 @@
 🤯 서비스 간 충돌과 포트 관리가 복잡
 ```
 
-### **해결: 통합 인프라 프레임워크**
+### **해결: 통합 MCP 관리시스템**
 ```
 ✅ Docker로 모든 서비스 격리 및 표준화
 ✅ 온디맨드로 필요한 서비스만 실행
@@ -52,11 +54,11 @@
 
 ## 🚀 **시작하기**
 
-### **1단계: 프레임워크 설치**
+### **1단계: 시스템 설치**
 ```bash
 # 저장소 클론
-git clone https://github.com/your-repo/mcp-infrastructure
-cd mcp-infrastructure
+git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
+cd enterprise-mcp-infrastructure
 
 # Docker 컨테이너 빌드
 docker-compose build
@@ -86,7 +88,7 @@ claude
 
 ---
 
-## 🏗️ **프레임워크 구조**
+## 🏗️ **시스템 구조**
 
 ```
 mcp-infrastructure/
@@ -185,9 +187,9 @@ echo "YOUR_API_KEY=your-key-here" >> .env
 
 ## 🤝 **기여하기**
 
-이 프레임워크 개선에 기여를 환영합니다:
+이 관리시스템 개선에 기여를 환영합니다:
 
-1. 프레임워크 기능 개선
+1. 시스템 기능 개선
 2. MCP 서비스 통합 가이드
 3. 버그 수정 및 성능 개선
 
@@ -195,9 +197,9 @@ echo "YOUR_API_KEY=your-key-here" >> .env
 
 ## ⚠️ **주의사항**
 
-1. **이것은 빈 프레임워크입니다** - MCP 서비스를 직접 추가해야 합니다
-2. **API 키 필요** - 각 서비스의 API 키는 직접 설정하세요
-3. **Docker 필수** - Docker 없이는 작동하지 않습니다
+1. **MCP 서비스는 직접 추가** - 필요한 서비스를 선택하여 통합하세요
+2. **API 키 설정 필요** - 각 서비스별 인증 정보는 직접 구성하세요
+3. **Docker 환경 필수** - 모든 서비스는 Docker 컨테이너로 실행됩니다
 
 ---
 
@@ -207,4 +209,4 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 
 ---
 
-**참고**: 이 프로젝트는 인프라 프레임워크입니다. 실제 MCP 서비스와 도구는 사용자가 추가해야 합니다.
+**참고**: 이 프로젝트는 MCP 서비스 통합 관리시스템입니다. 실제 MCP 서비스는 사용자가 필요에 따라 선택하여 추가합니다.

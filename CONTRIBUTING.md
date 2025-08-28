@@ -1,6 +1,6 @@
-# 🤝 Contributing to MCP Infrastructure Framework
+# 🤝 Contributing to MCP Management System
 
-Thank you for your interest in contributing! This project provides **infrastructure for MCP services**. Note that MCP services themselves are not included - this is an empty framework that users populate with their own services.
+Thank you for your interest in contributing! This project provides **integrated management system for MCP services**. Note that MCP services themselves are not included - users add their own services to this management system.
 
 ## 🎯 Our Standards
 
@@ -14,7 +14,7 @@ Thank you for your interest in contributing! This project provides **infrastruct
 - MCP service implementations (those belong in separate repositories)
 - Business logic beyond infrastructure scope
 - AI features beyond basic infrastructure
-- Service-specific code (this is infrastructure only)
+- Service-specific code (this is a management system only)
 
 ## 🚀 Getting Started
 

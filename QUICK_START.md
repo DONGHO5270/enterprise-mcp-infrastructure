@@ -1,6 +1,6 @@
 # 🚀 Quick Start Guide
 
-> ⚠️ **Important**: This is an empty infrastructure framework. You need to add your own MCP services.
+> 💡 **통합 MCP 관리시스템**: 사용자의 MCP 서비스를 Docker 기반으로 통합 관리
 
 ## 📋 Prerequisites
 
@@ -136,12 +136,12 @@ curl http://localhost:3100/health
 
 ## ⚠️ Important Notes
 
-### **What This Infrastructure Does NOT Include**
+### **사용자가 추가하는 것**
 
-- ❌ **No MCP services pre-installed** - You add your own
-- ❌ **No demo services** - Start with empty framework
-- ❌ **No automatic service discovery** - Manual registration required
-- ❌ **No AI features** - Just infrastructure
+- 📌 **MCP 서비스** - 필요한 서비스를 선택하여 추가
+- 🔑 **API 키** - 각 서비스별 인증 정보 설정
+- ⚙️ **환경 설정** - 서비스별 세부 구성
+- 🎯 **커스텀 로직** - 프로젝트에 맞는 설정
 
 ### **What You Need to Do**
 
@@ -198,4 +198,4 @@ docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d
 
 ---
 
-**Remember**: This is infrastructure only. The value comes from the MCP services you choose to add.
+**참고**: 이 프로젝트는 MCP 서비스 통합 관리시스템입니다. 실제 MCP 서비스는 사용자가 필요에 따라 선택하여 추가합니다.
