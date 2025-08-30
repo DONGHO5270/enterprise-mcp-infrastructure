@@ -1,9 +1,7 @@
 # 🧹 GitHub 저장소 정리용 .gitignore
 # Infrastructure-Only 전략: 분석 보고서는 제외하고 핵심 인프라만 공개
 
-# === Claude 설정 파일 ===
-CLAUDE.md
-claude.md
+# === Claude 설정 파일 (로컬만 사용) ===
 .claude/
 
 # === 분석 및 보고서 문서 ===
@@ -177,4 +175,18 @@ debug-*.html
 *RECOVERY*
 *RESTORE*
 *ULTIMATE-FIX*
-CLAUDE.md
+
+# === 이전 버전 문서들 (GitHub 정리용) ===
+# 작업 과정 문서들 - 내부 참조용으로만 사용
+CLAUDE-CODE-REAL-USAGE.md
+DEVELOPER-EXAMPLE.md
+INFRASTRUCTURE-GUIDE.md
+QUICK_START.md
+UPDATE-REPORT.md
+
+# 작업 과정에서 생성된 분석 문서들
+*-EXAMPLE*.md
+*-GUIDE*.md
+*-USAGE*.md
+*REAL-USAGE*.md
+*UPDATE-REPORT*.md
