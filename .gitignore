@@ -42,15 +42,19 @@ clear-thought-*.json
 *-analysis*.json
 
 # Windows 관련 설정 (크로스 플랫폼 호환성 위해 제외)
-*.ps1
+# *.ps1  # Docker setup 스크립트는 필요하므로 주석 처리
 *.bat
 *.cmd
 add-*.ps1
-setup-*.ps1
+# setup-*.ps1  # docker-setup.ps1은 필요하므로 주석 처리
 fix-*.ps1
 test-*.ps1
 *-powershell*
-*windows*
+# *windows*  # 일부 windows 관련 파일은 필요할 수 있음
+
+# Docker setup 스크립트는 제외하지 않음
+!docker-setup.ps1
+!docker-setup.sh
 
 # 임시 스크립트들
 create-*.sh
