@@ -69,10 +69,10 @@ git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
 # BUILD Docker image (REQUIRED!)
-docker-compose build mcp-router
+docker-compose -f docker/compose/docker-compose.yml build mcp-router
 
 # Start Docker container
-docker-compose up -d mcp-router
+docker-compose -f docker/compose/docker-compose.yml up -d mcp-router
 
 # Check status
 curl http://localhost:3100/health
@@ -429,10 +429,10 @@ git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
 # Docker 이미지 빌드 (필수!)
-docker-compose build mcp-router
+docker-compose -f docker/compose/docker-compose.yml build mcp-router
 
 # Docker 컨테이너 시작
-docker-compose up -d mcp-router
+docker-compose -f docker/compose/docker-compose.yml up -d mcp-router
 
 # 상태 확인
 curl http://localhost:3100/health

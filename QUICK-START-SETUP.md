@@ -33,10 +33,10 @@ cd enterprise-mcp-infrastructure
 docker --version
 
 # mcp-router 이미지 빌드
-docker-compose build mcp-router
+docker-compose -f docker/compose/docker-compose.yml build mcp-router
 
 # 또는 전체 빌드
-docker-compose build
+docker-compose -f docker/compose/docker-compose.yml build
 ```
 
 ### **macOS / Linux / WSL**
@@ -45,10 +45,10 @@ docker-compose build
 docker --version
 
 # mcp-router 이미지 빌드
-docker-compose build mcp-router
+docker-compose -f docker/compose/docker-compose.yml build mcp-router
 
 # 또는 전체 빌드
-docker-compose build
+docker-compose -f docker/compose/docker-compose.yml build
 ```
 
 ---
@@ -57,10 +57,10 @@ docker-compose build
 
 ```bash
 # MCP Router 컨테이너 시작
-docker-compose up -d mcp-router
+docker-compose -f docker/compose/docker-compose.yml up -d mcp-router
 
 # 로그 확인 (선택사항)
-docker-compose logs -f mcp-router
+docker-compose -f docker/compose/docker-compose.yml logs -f mcp-router
 ```
 
 ---
@@ -126,17 +126,17 @@ docker compose up -d mcp-router
 netstat -an | grep 3100
 
 # Docker 컨테이너 정리
-docker-compose down
-docker-compose up -d mcp-router
+docker-compose -f docker/compose/docker-compose.yml down
+docker-compose -f docker/compose/docker-compose.yml up -d mcp-router
 ```
 
 ### **빌드 실패 시**
 ```bash
 # 클린 빌드
-docker-compose down
+docker-compose -f docker/compose/docker-compose.yml down
 docker system prune -f
-docker-compose build --no-cache mcp-router
-docker-compose up -d mcp-router
+docker-compose -f docker/compose/docker-compose.yml build --no-cache mcp-router
+docker-compose -f docker/compose/docker-compose.yml up -d mcp-router
 ```
 
 ---
@@ -148,10 +148,10 @@ docker-compose up -d mcp-router
 docker ps
 
 # MCP Router 로그 보기
-docker-compose logs mcp-router
+docker-compose -f docker/compose/docker-compose.yml logs mcp-router
 
 # 실시간 로그 모니터링
-docker-compose logs -f mcp-router
+docker-compose -f docker/compose/docker-compose.yml logs -f mcp-router
 ```
 
 ---
@@ -172,10 +172,10 @@ git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
 # 2. 빌드 (필수!)
-docker-compose build mcp-router
+docker-compose -f docker/compose/docker-compose.yml build mcp-router
 
 # 3. 시작
-docker-compose up -d mcp-router
+docker-compose -f docker/compose/docker-compose.yml up -d mcp-router
 
 # 4. 확인
 curl http://localhost:3100/health
@@ -190,5 +190,5 @@ claude
 
 - Docker Desktop을 먼저 시작하세요
 - 빌드는 처음 한 번만 하면 됩니다
-- 이후에는 `docker-compose up -d`만 실행하면 됩니다
-- 종료: `docker-compose down`
+- 이후에는 `docker-compose -f docker/compose/docker-compose.yml up -d`만 실행하면 됩니다
+- 종료: `docker-compose -f docker/compose/docker-compose.yml down`
