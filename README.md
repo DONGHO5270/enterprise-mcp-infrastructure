@@ -60,19 +60,26 @@
 
 ## 🚀 **Quick Start (15 minutes to first MCP installation)**
 
+### ⚠️ **IMPORTANT: Build Required After Clone!**
+
 ### **Step 1: Infrastructure Installation (5 minutes)**
 ```bash
 # Clone repository
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Start Docker
-docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d mcp-router
+# BUILD Docker image (REQUIRED!)
+docker-compose build mcp-router
+
+# Start Docker container
+docker-compose up -d mcp-router
 
 # Check status
 curl http://localhost:3100/health
 # {"status":"healthy","router":"active","services":0}  # Start from empty state
 ```
+
+📌 **Note**: The `docker-compose build` step is MANDATORY after cloning!
 
 ### **Step 2: Run Claude Code (2 minutes)**
 ```bash
@@ -413,19 +420,26 @@ MIT License - Free to use, modify, and distribute
 
 ## 🚀 **빠른 시작 (첫 MCP 설치까지 15분)**
 
+### ⚠️ **중요: 클론 후 반드시 빌드 필요!**
+
 ### **1단계: 인프라 설치 (5분)**
 ```bash
 # 저장소 클론
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Docker 시작
-docker-compose -f docker/compose/docker-compose-mcp-ondemand.yml up -d mcp-router
+# Docker 이미지 빌드 (필수!)
+docker-compose build mcp-router
+
+# Docker 컨테이너 시작
+docker-compose up -d mcp-router
 
 # 상태 확인
 curl http://localhost:3100/health
 # {"status":"healthy","router":"active","services":0}  # 빈 상태에서 시작
 ```
+
+📌 **참고**: 클론 후 `docker-compose build` 단계는 필수입니다!
 
 ### **2단계: Claude Code 실행 (2분)**
 ```bash

@@ -193,3 +193,8 @@ CONTENT-STANDARDS.md
 *UPDATE-REPORT*.md
 *STANDARDS*.md
 *-STANDARDS*.md
+
+# 테스트 및 내부 검증 문서
+REAL-USER-TEST-GUIDE.md
+*TEST-GUIDE*.md
+*-TEST*.md
