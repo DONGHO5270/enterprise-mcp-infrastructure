@@ -11,13 +11,13 @@ If you've just installed Docker Desktop, **some essential configuration is requi
 ### **Windows Users**
 ```powershell
 # Run PowerShell as Administrator
-.\docker-setup.ps1
+.\smart-setup.ps1
 ```
 
 ### **macOS/Linux Users**
 ```bash
-chmod +x docker-setup.sh
-./docker-setup.sh
+chmod +x smart-setup.sh
+./smart-setup.sh
 ```
 
 ---
