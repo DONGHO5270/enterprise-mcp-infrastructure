@@ -118,7 +118,7 @@ else
 fi
 
 # Generate docker-compose.yml with relative paths
-COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
+COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
 generate_compose_file() {
     cat > "$COMPOSE_FILE" << 'EOF'
 # Auto-generated Docker Compose configuration
@@ -190,7 +190,7 @@ cat > "$START_SCRIPT" << 'EOF'
 #!/bin/bash
 echo "Starting MCP Infrastructure..."
 cd "$(dirname "$0")"
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml up -d
 echo ""
 echo "MCP Infrastructure is running!"
 echo "Access the router at: http://localhost:3100"
@@ -204,7 +204,7 @@ cat > "$STOP_SCRIPT" << 'EOF'
 #!/bin/bash
 echo "Stopping MCP Infrastructure..."
 cd "$(dirname "$0")"
-docker-compose down
+docker-compose -f docker/docker-compose.yml down
 echo ""
 echo "MCP Infrastructure stopped."
 EOF
@@ -216,8 +216,8 @@ echo -e "    Setup Complete!"
 echo -e "========================================${NC}"
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"
-echo -e "${WHITE}1. Run: docker-compose build${NC}"
-echo -e "${WHITE}2. Run: docker-compose up -d${NC}"
+echo -e "${WHITE}1. Run: docker-compose -f docker/docker-compose.yml build${NC}"
+echo -e "${WHITE}2. Run: docker-compose -f docker/docker-compose.yml up -d${NC}"
 echo -e "${WHITE}   Or simply run: ./start-mcp.sh${NC}"
 echo ""
 echo -e "${CYAN}Your infrastructure will be available at:${NC}"

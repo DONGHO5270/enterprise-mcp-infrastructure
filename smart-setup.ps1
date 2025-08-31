@@ -93,7 +93,7 @@ if ($Force -or -not (Test-Path $envFile)) {
 }
 
 # Generate docker-compose.yml with relative paths
-$composeFile = Join-Path $ProjectRoot "docker-compose.yml"
+$composeFile = Join-Path $ProjectRoot "docker\docker-compose.yml"
 $composeContent = @"
 # Auto-generated Docker Compose configuration
 # This file uses environment variables from docker/compose/.env
@@ -163,7 +163,7 @@ $startContent = @"
 @echo off
 echo Starting MCP Infrastructure...
 cd /d "%~dp0"
-docker-compose up -d
+docker-compose -f docker\docker-compose.yml up -d
 echo.
 echo MCP Infrastructure is running!
 echo Access the router at: http://localhost:3100
@@ -180,7 +180,7 @@ $stopContent = @"
 @echo off
 echo Stopping MCP Infrastructure...
 cd /d "%~dp0"
-docker-compose down
+docker-compose -f docker\docker-compose.yml down
 echo.
 echo MCP Infrastructure stopped.
 pause
@@ -194,8 +194,8 @@ Write-Host "    Setup Complete!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "1. Run: docker-compose build" -ForegroundColor White
-Write-Host "2. Run: docker-compose up -d" -ForegroundColor White
+Write-Host "1. Run: docker-compose -f docker\docker-compose.yml build" -ForegroundColor White
+Write-Host "2. Run: docker-compose -f docker\docker-compose.yml up -d" -ForegroundColor White
 Write-Host "   Or simply run: .\start-mcp.bat" -ForegroundColor White
 Write-Host ""
 Write-Host "Your infrastructure will be available at:" -ForegroundColor Cyan
