@@ -278,7 +278,7 @@ claude  # Terminal takeover → Full folder access permissions
 #### **Step 3: Apply MCP Configuration to Development Project**
 ```bash
 # Request configuration in conversation with Claude
-You> "Configure my project /home/user/my-project to use installed MCPs"
+You> "Configure my project /path/to/my-project to use installed MCPs"
 
 # Claude automatically:
 # ✅ Explores the target project folder
@@ -292,7 +292,7 @@ Claude> MCP configuration for my-project is complete.
 #### **Step 4: Use MCP in Development Project**
 ```bash
 # Now move to development project
-cd /home/user/my-project
+cd /path/to/my-project
 claude
 
 # Check and use MCP tools
@@ -638,7 +638,7 @@ claude  # 터미널 점유 → 전체 폴더 접근 권한
 #### **3단계: 개발 프로젝트에 MCP 설정 적용**
 ```bash
 # Claude와의 대화창에서 설정 요청
-You> "내 프로젝트 /home/user/my-project에 설치된 MCP들 사용할 수 있게 설정해줘"
+You> "내 프로젝트 /path/to/my-project에 설치된 MCP들 사용할 수 있게 설정해줘"
 
 # Claude가 자동으로:
 # ✅ 해당 프로젝트 폴더 탐색
@@ -652,7 +652,7 @@ Claude> my-project에 MCP 설정을 완료했습니다.
 #### **4단계: 개발 프로젝트에서 MCP 사용**
 ```bash
 # 이제 개발 프로젝트로 이동
-cd /home/user/my-project
+cd /path/to/my-project
 claude
 
 # MCP 도구 확인 및 사용

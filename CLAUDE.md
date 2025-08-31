@@ -39,7 +39,7 @@ GitHub: [GitHub URL of the MCP]
 ### 2. MCP Configuration for Development Projects (Important!)
 ```
 # ⚠️ Must run from enterprise-mcp-infrastructure folder
-You> Configure my project /home/user/my-project to use installed MCPs
+You> Configure my project /path/to/my-project to use installed MCPs
 You> Add MCP configuration to /path/to/another-project too
 ```
 
@@ -196,7 +196,7 @@ GitHub: [해당 MCP의 GitHub URL]
 ### 2. 개발 프로젝트에 MCP 설정 (중요!)
 ```
 # ⚠️ 반드시 enterprise-mcp-infrastructure 폴더에서 실행
-You> 내 프로젝트 /home/user/my-project에 설치된 MCP들 사용할 수 있게 설정해줘
+You> 내 프로젝트 /path/to/my-project에 설치된 MCP들 사용할 수 있게 설정해줘
 You> /path/to/another-project에도 MCP 설정 추가해줘
 ```
 
