@@ -57,13 +57,18 @@ WORKDIR /app
 
 # 패키지 파일 복사
 COPY package*.json ./
-RUN npm ci --only=production
+
+# 모든 의존성 설치 (TypeScript 컴파일을 위해)
+RUN npm ci
 
 # 소스 코드 복사
 COPY . .
 
 # TypeScript 컴파일
 RUN npm run build
+
+# Production dependencies만 재설치 (빌드 완료 후 크기 최적화)
+RUN rm -rf node_modules && npm ci --only=production
 
 # 간단한 시작 스크립트 생성 (권한 수정 제거)
 RUN echo '#!/bin/bash\n\
