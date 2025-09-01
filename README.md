@@ -63,16 +63,31 @@
 ### ⚠️ **IMPORTANT: Build Required After Clone!**
 
 ### **Step 1: Infrastructure Installation (5 minutes)**
+
+#### **Windows (PowerShell)**
+```powershell
+# Clone repository
+git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
+cd enterprise-mcp-infrastructure
+
+# Run setup and start script
+.\smart-setup.ps1  # Initial setup
+.\start.ps1        # Start MCP Router
+
+# Check status
+curl http://localhost:3100/health
+# {"status":"healthy","router":"active","services":0}  # Start from empty state
+```
+
+#### **Linux/WSL/macOS**
 ```bash
 # Clone repository
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# BUILD Docker image (REQUIRED!)
-docker-compose build mcp-router
-
-# Start Docker container
-docker-compose up -d mcp-router
+# Run setup and start script
+./smart-setup.sh   # Initial setup
+./start.sh         # Start MCP Router
 
 # Check status
 curl http://localhost:3100/health
@@ -423,16 +438,31 @@ MIT License - Free to use, modify, and distribute
 ### ⚠️ **중요: 클론 후 반드시 빌드 필요!**
 
 ### **1단계: 인프라 설치 (5분)**
+
+#### **Windows (PowerShell)**
+```powershell
+# 저장소 클론
+git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
+cd enterprise-mcp-infrastructure
+
+# 설정 및 시작 스크립트 실행
+.\smart-setup.ps1  # 초기 설정
+.\start.ps1        # MCP Router 시작
+
+# 상태 확인
+curl http://localhost:3100/health
+# {"status":"healthy","router":"active","services":0}  # 빈 상태에서 시작
+```
+
+#### **Linux/WSL/macOS**
 ```bash
 # 저장소 클론
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Docker 이미지 빌드 (필수!)
-docker-compose build mcp-router
-
-# Docker 컨테이너 시작
-docker-compose up -d mcp-router
+# 설정 및 시작 스크립트 실행
+./smart-setup.sh   # 초기 설정
+./start.sh         # MCP Router 시작
 
 # 상태 확인
 curl http://localhost:3100/health
