@@ -24,14 +24,17 @@ if (-not (Test-Path "$projectRoot\CLAUDE.md")) {
 Write-Host "[OK] Project root: $projectRoot" -ForegroundColor Green
 
 # Check for docker-compose file
-$composeFile = "$projectRoot\docker\compose\docker-compose.yml"
+$composeFile = "$projectRoot\docker\docker-compose.yml"
 if (-not (Test-Path $composeFile)) {
-    # Try alternative location
-    $composeFile = "$projectRoot\docker\docker-compose.yml"
+    # Try alternative locations
+    $composeFile = "$projectRoot\docker\compose\docker-compose-powershell.yml"
     if (-not (Test-Path $composeFile)) {
-        Write-Host "[ERROR] docker-compose.yml not found!" -ForegroundColor Red
-        Write-Host "Expected at: docker\compose\docker-compose.yml" -ForegroundColor Yellow
-        exit 1
+        $composeFile = "$projectRoot\docker\compose\docker-compose-mcp-ondemand.yml"
+        if (-not (Test-Path $composeFile)) {
+            Write-Host "[ERROR] docker-compose.yml not found!" -ForegroundColor Red
+            Write-Host "Expected at: docker\docker-compose.yml" -ForegroundColor Yellow
+            exit 1
+        }
     }
 }
 

@@ -25,14 +25,17 @@ fi
 echo "[OK] Project root: $PROJECT_ROOT"
 
 # Check for docker-compose file
-COMPOSE_FILE="$PROJECT_ROOT/docker/compose/docker-compose.yml"
+COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
 if [ ! -f "$COMPOSE_FILE" ]; then
-    # Try alternative location
-    COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
+    # Try alternative locations
+    COMPOSE_FILE="$PROJECT_ROOT/docker/compose/docker-compose-mcp-ondemand.yml"
     if [ ! -f "$COMPOSE_FILE" ]; then
-        echo "[ERROR] docker-compose.yml not found!"
-        echo "Expected at: docker/compose/docker-compose.yml"
-        exit 1
+        COMPOSE_FILE="$PROJECT_ROOT/docker/compose/docker-compose.yml"
+        if [ ! -f "$COMPOSE_FILE" ]; then
+            echo "[ERROR] docker-compose.yml not found!"
+            echo "Expected at: docker/docker-compose.yml"
+            exit 1
+        fi
     fi
 fi
 
