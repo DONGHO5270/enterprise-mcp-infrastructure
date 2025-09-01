@@ -3,14 +3,14 @@ version: '3.8'
 services:
   mcp-router:
     build: 
-      context: ./services/mcp-router
+      context: ../services/mcp-router
       dockerfile: Dockerfile
     container_name: mcp-router
     ports:
       - "3100:3000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./services/mcp:/services/mcp:ro
+      - ../services/mcp:/services/mcp:ro
     environment:
       - NODE_ENV=production
       - PORT=3000
