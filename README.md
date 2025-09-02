@@ -360,18 +360,34 @@ You> "Analyze code quality" → code-checker MCP auto-activated via Task tool
 - **Attempt from wrong folder**: 0% (no permissions)
 - **Auto-recovery rate**: 67% (when errors occur)
 
-### **Claude Desktop Users (Global Configuration Once)**
+### **Claude Desktop Users (Global Configuration)**
+
+⚠️ **Important**: Claude Desktop requires a bridge script to communicate with Docker MCP services.
+
+#### Quick Setup:
+1. Create bridge script (see [detailed guide](./docs/CLAUDE-DESKTOP-DOCKER-BRIDGE.md))
+2. Configure Claude Desktop:
+
 ```json
-// Edit ~/.claude/claude_desktop_config.json
+// Edit claude_desktop_config.json
+// Windows: %APPDATA%\Claude\claude_desktop_config.json
+// macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+// Linux: ~/.config/Claude/claude_desktop_config.json
+
 {
   "mcpServers": {
-    "unified-mcp-hub": {
-      "command": "curl",
-      "args": ["-X", "POST", "http://localhost:3100/mcp/router"]
+    "docker-mcp": {
+      "command": "node",
+      "args": ["path/to/claude-desktop-bridge.js"],
+      "env": {
+        "MCP_ROUTER_URL": "http://localhost:3100"
+      }
     }
   }
 }
 ```
+
+📖 **[Full Claude Desktop Setup Guide](./docs/CLAUDE-DESKTOP-DOCKER-BRIDGE.md)** - Required reading for Claude Desktop users!
 
 ---
 
