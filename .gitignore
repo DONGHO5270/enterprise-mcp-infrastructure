@@ -4,6 +4,7 @@
 # === Claude 설정 파일 (로컬만 사용) ===
 .claude/
 .clauderc
+LOCAL-MCP-SETUP.md
 
 # === 분석 및 보고서 문서 ===
 # 비즈니스 분석 문서들 (내부용)
