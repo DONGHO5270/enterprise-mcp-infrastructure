@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "unified-mcp": {
+      "command": "node",
+      "args": [
+        "{{PROJECT_ROOT}}/bridge-to-router.js"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "MCP_ROUTER_URL": "http://localhost:3100",
+        "MCP_ROUTER_BASE_PATH": "{{PROJECT_ROOT}}",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8"
+      }
+    }
+  },
+  "_template_info": {
+    "description": "Claude Desktop MCP configuration template for Unified MCP Infrastructure",
+    "placeholders": {
+      "PROJECT_ROOT": "Absolute path to the unified-mcp-infrastructure directory"
+    },
+    "usage": "Use generate-claude-desktop-config.sh/ps1 to generate actual configuration with correct paths",
+    "generated": "This file is a template. Do not edit directly."
+  }
+}
