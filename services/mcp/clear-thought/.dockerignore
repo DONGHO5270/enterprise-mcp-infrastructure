@@ -1,0 +1,61 @@
+# Development
+node_modules/
+memory-bank/
+.git/
+.gitignore
+.npmignore
+*.log
+.DS_Store
+
+# Other packages in monorepo
+servers/*/
+!servers/server-glassbead-thinks/
+!servers/server-yelp-fusionai/
+
+# Build artifacts
+dist/
+*.tgz
+
+# Editor
+.vscode/
+.idea/
+
+# Test files
+__tests__/
+*.test.ts
+*.spec.ts
+
+# Environment
+.env
+*.env.*
+
+# Documentation
+CONTRIBUTING.md
+CHANGELOG.md
+
+# Keep essential files
+!package.json
+!package-lock.json
+!tsconfig.json
+!LICENSE
+!README.md
+!src/
+!index.ts
+
+# Keep server package files
+!servers/server-glassbead-thinks/package.json
+!servers/server-glassbead-thinks/package-lock.json
+!servers/server-glassbead-thinks/tsconfig.json
+!servers/server-glassbead-thinks/LICENSE
+!servers/server-glassbead-thinks/README.md
+!servers/server-glassbead-thinks/src/
+!servers/server-glassbead-thinks/index.ts
+
+!servers/server-clear-thought/
+!servers/server-clear-thought/package.json
+!servers/server-clear-thought/package-lock.json
+!servers/server-clear-thought/tsconfig.json
+!servers/server-clear-thought/LICENSE
+!servers/server-clear-thought/README.md
+!servers/server-clear-thought/src/
+!servers/server-clear-thought/index.ts
