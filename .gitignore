@@ -101,6 +101,10 @@ test-mcp-connection.js
 mcp-test.*
 *mcp-test*
 
+# === 로컬 전용 배치/스크립트 파일들 ===
+claude-fast.bat
+*-fast.bat
+
 # === Docker ===
 .docker/
 
