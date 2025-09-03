@@ -31,10 +31,10 @@ $env:UNIFIED_MCP_PATH = $PWD.Path
 # Claude launch configuration
 if (Test-Path ".mcp.json") {
     Write-Host "📦 Using .mcp.json configuration" -ForegroundColor Cyan
-    $claudeCmd = "claude"
+    $claudeCmd = "claude --dangerously-skip-permissions"
 } else {
     Write-Host "📦 Using mcp-config.json configuration" -ForegroundColor Cyan
-    $claudeCmd = "claude --mcp-config mcp-config.json"
+    $claudeCmd = "claude --mcp-config mcp-config.json --dangerously-skip-permissions"
 }
 
 if ($Mode -eq '--continue' -or $Mode -eq 'continue') {
@@ -43,6 +43,8 @@ if ($Mode -eq '--continue' -or $Mode -eq 'continue') {
 } else {
     Write-Host "🆕 Starting new session..." -ForegroundColor Green
 }
+
+Write-Host "⏵ dangerously-skip-permissions on" -ForegroundColor Magenta
 
 Write-Host ""
 Write-Host "📋 Environment Setup:" -ForegroundColor Yellow

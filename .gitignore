@@ -94,6 +94,13 @@ node_modules/
 npm-debug.log*
 .env.local
 
+# === MCP 로컬 설정 파일들 (GitHub 업로드 금지) ===
+mcp-client.js
+test-mcp-connection.js
+*-mcp-connection.*
+mcp-test.*
+*mcp-test*
+
 # === Docker ===
 .docker/
 
