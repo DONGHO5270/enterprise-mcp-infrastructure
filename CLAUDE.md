@@ -38,7 +38,7 @@ GitHub: [GitHub URL of the MCP]
 
 ### 2. MCP Configuration for Development Projects (Important!)
 ```
-# ⚠️ Must run from enterprise-mcp-infrastructure folder
+# ⚠️ Must run from enterprise-mcp-infrastructure folder  
 You> Configure my project /path/to/my-project to use installed MCPs
 You> Add MCP configuration to /path/to/another-project too
 ```
@@ -170,7 +170,7 @@ claude
 # Request project configuration
 You> Configure my project /path/to/my-project for MCP
 
-# Claude automatically creates and configures .clauderc
+# Claude automatically creates and configures .mcp.json
 # IMPORTANT: This enables Task tool integration automatically
 ```
 
@@ -192,7 +192,7 @@ Claude> I'll use the Task tool to maintain context across the analysis...
 ```
 
 ### Task Tool Setup
-- **Automatic**: `.clauderc` configuration includes Task tool bridge
+- **Automatic**: `.mcp.json` configuration includes Task tool bridge
 - **Bridge Script**: `bridge-to-router.js` handles Task→MCP communication
 - **Context Preservation**: Maintains conversation flow across MCP calls
 - **Performance**: 91.7% success rate vs 82.3% for direct API

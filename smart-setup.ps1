@@ -200,3 +200,9 @@ Write-Host "   Or simply run: .\start-mcp.bat" -ForegroundColor White
 Write-Host ""
 Write-Host "Your infrastructure will be available at:" -ForegroundColor Cyan
 Write-Host "http://localhost:3100" -ForegroundColor Green
+
+# Keep terminal open for user to read the output
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Press any key to continue..." -ForegroundColor Yellow
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

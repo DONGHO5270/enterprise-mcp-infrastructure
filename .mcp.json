@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "unified-mcp": {
+      "command": "node",
+      "args": ["bridge-to-router.js"],
+      "env": {
+        "MCP_ROUTER_URL": "http://localhost:3100",
+        "NODE_ENV": "production",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

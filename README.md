@@ -27,8 +27,8 @@
 ### 🎯 **Claude Code vs Claude Desktop**
 
 #### 💻 **Claude Code (Per-Project Configuration)**
-- ✅ Requires MCP connection setup for each project
-- ✅ Uses `.clauderc` file
+- ✅ Requires MCP connection setup for each project  
+- ✅ Uses `.mcp.json` file
 - ❌ No global configuration possible
 
 #### 🖥️ **Claude Desktop (Global Configuration)**
@@ -70,9 +70,8 @@
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Run setup and start script
-.\smart-setup.ps1  # Initial setup
-.\start.ps1        # Start MCP Router
+# Run setup script
+.\smart-setup.ps1  # Initial setup and configuration
 
 # Check status
 curl http://localhost:3100/health
@@ -85,9 +84,8 @@ curl http://localhost:3100/health
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# Run setup and start script
-./smart-setup.sh   # Initial setup
-./start.sh         # Start MCP Router
+# Run setup script
+./smart-setup.sh   # Initial setup and configuration
 
 # Check status
 curl http://localhost:3100/health
@@ -494,9 +492,8 @@ MIT License - Free to use, modify, and distribute
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# 설정 및 시작 스크립트 실행
-.\smart-setup.ps1  # 초기 설정
-.\start.ps1        # MCP Router 시작
+# 설정 스크립트 실행
+.\smart-setup.ps1  # 초기 설정 및 구성
 
 # 상태 확인
 curl http://localhost:3100/health
@@ -509,9 +506,8 @@ curl http://localhost:3100/health
 git clone https://github.com/DONGHO5270/enterprise-mcp-infrastructure
 cd enterprise-mcp-infrastructure
 
-# 설정 및 시작 스크립트 실행
-./smart-setup.sh   # 초기 설정
-./start.sh         # MCP Router 시작
+# 설정 스크립트 실행
+./smart-setup.sh   # 초기 설정 및 구성
 
 # 상태 확인
 curl http://localhost:3100/health

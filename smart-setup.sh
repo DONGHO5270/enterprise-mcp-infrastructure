@@ -230,3 +230,9 @@ if [ "$IS_WSL" = true ]; then
     echo -e "You can also access from Windows at the same URL"
     echo -e "Make sure Docker Desktop is running with WSL2 integration"
 fi
+
+# Keep terminal open for user to read the output
+echo ""
+echo -e "${CYAN}========================================${NC}"
+echo -e "${YELLOW}Press Enter to continue...${NC}"
+read -r

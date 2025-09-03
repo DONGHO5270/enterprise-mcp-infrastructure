@@ -30,7 +30,7 @@ curl http://localhost:3100/health
 
 ### Step 2: Configure Claude Code
 
-Create or update `.clauderc` in your project root:
+Create or update `.mcp.json` in your project root:
 
 ```json
 {

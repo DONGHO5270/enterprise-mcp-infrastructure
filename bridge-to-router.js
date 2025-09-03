@@ -7,7 +7,7 @@
  * 
  * Usage:
  * 1. Place this file in your project root
- * 2. Add to .clauderc configuration
+ * 2. Add to .mcp.json configuration
  * 3. Use Task tool in Claude Code conversations
  */
 
