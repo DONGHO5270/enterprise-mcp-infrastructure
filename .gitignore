@@ -100,6 +100,8 @@ test-mcp-connection.js
 *-mcp-connection.*
 mcp-test.*
 *mcp-test*
+.mcp.json.local
+*.local
 
 # === 로컬 전용 배치/스크립트 파일들 ===
 claude-fast.bat

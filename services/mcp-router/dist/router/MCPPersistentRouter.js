@@ -149,7 +149,11 @@ class MCPPersistentRouter {
                     method: 'initialize',
                     params: {
                         protocolVersion: '2024-11-05',
-                        capabilities: {}
+                        capabilities: {},
+                        clientInfo: {
+                            name: 'mcp-router',
+                            version: '1.0.0'
+                        }
                     }
                 };
                 await this.sendRequest(mcpProcess, initRequest);

@@ -55,5 +55,22 @@ Write-Host "Command: $claudeCmd" -ForegroundColor DarkGray
 Write-Host "Launching Claude Code with full MCP support..." -ForegroundColor Cyan
 Write-Host ""
 
-# Launch Claude directly in PowerShell
-Invoke-Expression $claudeCmd
+# Execute Claude with environment preserved
+# Split command for proper execution
+$claudeExe = "claude"
+$claudeArgs = $claudeCmd.Replace("claude ", "").Trim()
+
+# Create temporary batch file to preserve environment and avoid hang
+$tempBatch = [System.IO.Path]::GetTempFileName() + ".bat"
+@"
+@echo off
+set MCP_ROUTER_URL=$env:MCP_ROUTER_URL
+set MCP_PROJECT_ROOT=$env:MCP_PROJECT_ROOT
+set UNIFIED_MCP_PATH=$env:UNIFIED_MCP_PATH
+$claudeCmd
+"@ | Out-File -FilePath $tempBatch -Encoding ASCII
+
+# Execute batch and clean up
+Start-Process cmd -ArgumentList "/c $tempBatch" -NoNewWindow -PassThru | Out-Null
+Start-Sleep -Milliseconds 500  # Brief pause to ensure batch starts
+Remove-Item $tempBatch -ErrorAction SilentlyContinue

@@ -12,12 +12,15 @@
 [![Docker](https://img.shields.io/badge/Docker-Orchestration-blue)](https://www.docker.com/)
 [![Terminal AI](https://img.shields.io/badge/Terminal-AI_Managed-orange)](#)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-green)](https://modelcontextprotocol.io)
+[![Version](https://img.shields.io/badge/Version-v1.1.0-brightgreen)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure/releases/tag/v1.1.0)
 
 ---
 
 ## 🎯 **What is Unified MCP Infrastructure?**
 
 **A platform that starts from scratch and provides centralized Docker management for your desired MCP services.**
+
+> 📌 **Note**: This is an infrastructure management tool. MCP services are installed separately based on your needs.
 
 ### ⚡ **Core Innovation: Terminal-First AI Management**
 - 🤖 **Claude Code takes over your terminal** to directly control infrastructure
@@ -61,6 +64,8 @@
 ## 🚀 **Quick Start (15 minutes to first MCP installation)**
 
 ### ⚠️ **IMPORTANT: Build Required After Clone!**
+
+> **v1.1.0 Update**: Fixed JSON-RPC protocol compliance and Stochastic Thinking MCP build issues. All MCPs now working properly.
 
 ### **Step 1: Infrastructure Installation (5 minutes)**
 
@@ -221,6 +226,35 @@ Claude> All services are running normally...
 - **Natural Language**: Use MCP services with conversation, not JSON-RPC commands
 - **Emergent Intelligence**: Discovers patterns and insights through contextual understanding
 - **75% Faster Development**: 2 hours with Task tools vs 8 hours with direct API
+
+---
+
+## 🔧 **Troubleshooting (v1.1.0+)**
+
+### **Common Issues and Quick Fixes**
+
+#### **Exit Code 1 Error?**
+```bash
+# Fixed in v1.1.0 - If using older version:
+cd services/mcp/stochastic-thinking-mcp/packages/server-stochasticthinking
+npm install && npm run build
+```
+
+#### **5-second Timeout Issues?**
+```bash
+# Fixed in v1.1.0 - Router now includes clientInfo parameter
+# Check your router version:
+docker exec mcp-router cat /app/package.json | grep version
+# Should show: "version": "1.1.0" or higher
+```
+
+#### **MCP Not Responding?**
+```bash
+# Check Docker container status
+docker ps | grep mcp
+# Restart if needed
+docker-compose restart
+```
 
 ---
 
@@ -409,6 +443,7 @@ MIT License - Free to use, modify, and distribute
 
 - **[CLAUDE.md](./CLAUDE.md)** - Claude Code auto-load context
 - **[Task Tool Setup Guide](./docs/TASK-TOOL-SETUP-GUIDE.md)** - Detailed Task tool configuration
+- **[Release Notes](./RELEASE-NOTES.md)** - Version history and updates
 - **[MCP Protocol](https://modelcontextprotocol.io)** - MCP protocol documentation
 - **[Official MCP Repository](https://github.com/modelcontextprotocol/servers)** - Anthropic official MCP
 
@@ -434,6 +469,7 @@ MIT License - Free to use, modify, and distribute
 [![Docker](https://img.shields.io/badge/Docker-Orchestration-blue)](https://www.docker.com/)
 [![Terminal AI](https://img.shields.io/badge/Terminal-AI_Managed-orange)](#)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-green)](https://modelcontextprotocol.io)
+[![Version](https://img.shields.io/badge/Version-v1.1.0-brightgreen)](https://github.com/DONGHO5270/enterprise-mcp-infrastructure/releases/tag/v1.1.0)
 
 ---
 
@@ -483,6 +519,8 @@ MIT License - Free to use, modify, and distribute
 ## 🚀 **빠른 시작 (첫 MCP 설치까지 15분)**
 
 ### ⚠️ **중요: 클론 후 반드시 빌드 필요!**
+
+> **v1.1.0 업데이트**: JSON-RPC 프로토콜 준수 및 Stochastic Thinking MCP 빌드 이슈 수정. 모든 MCP가 정상 작동합니다.
 
 ### **1단계: 인프라 설치 (5분)**
 
@@ -782,6 +820,7 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 ## 📚 **추가 리소스**
 
 - **[CLAUDE.md](./CLAUDE.md)** - Claude Code 자동 로드 컨텍스트
+- **[릴리스 노트](./RELEASE-NOTES.md)** - 버전 히스토리 및 업데이트
 - **[MCP Protocol](https://modelcontextprotocol.io)** - MCP 프로토콜 문서
 - **[공식 MCP 저장소](https://github.com/modelcontextprotocol/servers)** - Anthropic 공식 MCP
 
