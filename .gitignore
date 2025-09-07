@@ -29,6 +29,10 @@ CURSOR-*.md
 WORDPRESS-*.md
 MONITORING-*.md
 
+# Phase 2 internal documentation
+PHASE2-ARCHITECTURE.md
+PHASE2-DOCUMENTATION-UPDATE-PLAN.md
+
 # 한국어 문서들 (내부 검토용)
 *-분석*.md
 *-보고서*.md
@@ -102,6 +106,7 @@ mcp-test.*
 *mcp-test*
 .mcp.json.local
 *.local
+services.json
 
 # === 로컬 전용 배치/스크립트 파일들 ===
 claude-fast.bat
