@@ -6,6 +6,12 @@ export interface MCPService {
     env?: Record<string, string>;
     startupTimeout?: number;
     capabilities?: string[];
+    metadata?: {
+        version?: string;
+        description?: string;
+        dynamicallyLoaded?: boolean;
+        [key: string]: any;
+    };
 }
 export interface MCPRequest {
     jsonrpc: '2.0';

@@ -2,6 +2,17 @@ import { spawn, ChildProcess } from 'child_process';
 import { MCPService } from '../types';
 import { logger } from '../utils/logger';
 import { v4 as uuidv4 } from 'uuid';
+
+// Phase 2 컴포넌트 통합
+import { mcpCache } from '../cache/MCPResponseCache';
+import { circuitManager } from '../circuit/CircuitBreaker';
+import { metricsCollector } from '../metrics/MetricsCollector';
+import { connectionPool } from '../pool/ConnectionPool';
+import { retryManager, withRetry } from '../retry/RetryManager';
+
+// Phase 3: Dynamic Service Discovery
+import { HybridServiceManager } from '../config/service-manager';
+
 // import { taskMCPRouter, MCPDirective } from '../config/task-mcp-routing';
 type MCPDirective = any; // Temporary type
 const taskMCPRouter = { 
@@ -20,26 +31,89 @@ interface MCPProcess {
   pendingRequests: Map<string | number, (response: any) => void>;
 }
 
-export class MCPPersistentRouter {
+export class MCPPersistentRouterEnhanced {
   private config: Record<string, MCPService>;
   private processes: Map<string, MCPProcess> = new Map();
   private cleanupInterval: NodeJS.Timeout;
   private idleTimeout: number;
+  private serviceManager: HybridServiceManager;
+  private isInitialized: boolean = false;
 
   constructor(config: Record<string, MCPService>) {
-    this.config = config;
+    this.config = config; // Keep for backward compatibility
     this.idleTimeout = parseInt(process.env.PROCESS_IDLE_TIMEOUT || '60000');
+    
+    // Phase 3: Initialize Hybrid Service Manager
+    this.serviceManager = new HybridServiceManager();
     
     // Cleanup idle processes every 30 seconds
     this.cleanupInterval = setInterval(() => {
       this.cleanupIdleProcesses();
     }, 30000);
+    
+    // Phase 2: 메트릭 컬렉터 초기화
+    logger.info('[Phase 2] Metrics collector initialized');
+    
+    // Phase 3: Dynamic Service Discovery 초기화
+    logger.info('[Phase 3] Dynamic Service Discovery initialized');
+  }
+  
+  /**
+   * Initialize the router with dynamic services
+   */
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      logger.info('[Phase 3] Router already initialized, skipping');
+      return;
+    }
+    
+    logger.info('[Phase 3] Starting Dynamic Service Discovery initialization...');
+    logger.info(`[Phase 3] ENABLE_DYNAMIC_DISCOVERY = ${process.env.ENABLE_DYNAMIC_DISCOVERY}`);
+    logger.info(`[Phase 3] MCP_DIRECTORY = ${process.env.MCP_DIRECTORY}`);
+    
+    try {
+      // Phase 3: Load all services (static + dynamic)
+      const allServices = await this.serviceManager.initialize();
+      
+      // Update config with all services
+      this.config = {};
+      const serviceNames: string[] = [];
+      for (const service of allServices) {
+        this.config[service.name] = service;
+        serviceNames.push(service.name);
+      }
+      
+      // Register for hot reload updates
+      this.serviceManager.onServicesUpdated((services) => {
+        logger.info('[Phase 3] Services updated via hot reload');
+        this.config = {};
+        for (const service of services) {
+          this.config[service.name] = service;
+        }
+      });
+      
+      this.isInitialized = true;
+      logger.info(`[Phase 3] ✅ Router initialized with ${allServices.length} services: ${serviceNames.join(', ')}`);
+    } catch (error) {
+      logger.error('[Phase 3] ❌ Failed to initialize:', error);
+      throw error;
+    }
   }
 
   async executeMCP(serviceName: string, mcpRequest: any, envFromHeaders?: Record<string, string>): Promise<any> {
+    const startTime = Date.now();
+    
+    // Phase 3: Ensure router is initialized
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    
+    // Phase 2: 메트릭 기록 시작
+    const requestId = `${serviceName}-${mcpRequest.id}-${Date.now()}`;
+    
     const service = this.config[serviceName];
     if (!service) {
-      return {
+      const errorResponse = {
         jsonrpc: '2.0',
         id: mcpRequest.id,
         error: {
@@ -47,9 +121,39 @@ export class MCPPersistentRouter {
           message: `Unknown service: ${serviceName}`
         }
       };
+      
+      // Phase 2: 에러 메트릭 기록
+      metricsCollector.recordRequest({
+        service: serviceName,
+        method: mcpRequest.method,
+        duration: Date.now() - startTime,
+        success: false,
+        error: 'Unknown service'
+      });
+      
+      return errorResponse;
     }
 
     logger.info(`Executing MCP ${serviceName}.${mcpRequest.method}`);
+    
+    // Phase 2: 캐시 확인 (읽기 작업만)
+    if (mcpRequest.method === 'tools/list' || mcpRequest.method === 'resources/list') {
+      const cached = await mcpCache.get(serviceName, mcpRequest.method, mcpRequest.params);
+      if (cached) {
+        logger.info(`[Cache HIT] ${serviceName}.${mcpRequest.method}`);
+        
+        // Phase 2: 캐시 히트 메트릭
+        metricsCollector.recordRequest({
+          service: serviceName,
+          method: mcpRequest.method,
+          duration: Date.now() - startTime,
+          success: true,
+          cacheHit: true
+        });
+        
+        return cached;
+      }
+    }
     
     // Task 도구의 MCP 호출 처리
     if (serviceName === 'taskmaster-ai' && mcpRequest.method === 'tools/call') {
@@ -74,17 +178,78 @@ export class MCPPersistentRouter {
     }
     
     try {
-      // Merge environment variables from headers if provided
-      const mergedService = envFromHeaders ? {
-        ...service,
-        env: { ...service.env, ...envFromHeaders }
-      } : service;
+      // Phase 2: 서킷 브레이커 확인
+      const breaker = circuitManager.getBreaker(serviceName);
       
-      const mcpProcess = await this.getOrCreateProcess(serviceName, mergedService);
-      const response = await this.sendRequest(mcpProcess, mcpRequest);
+      // Phase 2: 서킷 브레이커와 재시도 로직으로 실행
+      const response = await breaker.execute(async () => {
+        return await withRetry(
+          serviceName,
+          async () => {
+            // Merge environment variables from headers if provided
+            const mergedService = envFromHeaders ? {
+              ...service,
+              env: { ...service.env, ...envFromHeaders }
+            } : service;
+            
+            // Phase 2: 커넥션 풀 사용 (가능한 경우)
+            let mcpProcess: any;
+            let isPooledConnection = false;
+            
+            if (process.env.ENABLE_CONNECTION_POOL === 'true') {
+              mcpProcess = await connectionPool.acquire(serviceName, mergedService);
+              isPooledConnection = true;
+            } else {
+              mcpProcess = await this.getOrCreateProcess(serviceName, mergedService);
+            }
+            
+            // Send request to the appropriate process
+            const response = await this.sendRequest(mcpProcess, mcpRequest);
+            
+            // Phase 2: 커넥션 풀 반환
+            if (process.env.ENABLE_CONNECTION_POOL === 'true' && isPooledConnection) {
+              connectionPool.release(serviceName, mcpProcess);
+            }
+            
+            return response;
+          },
+          {
+            maxRetries: 3,
+            initialDelay: 1000
+          }
+        );
+      });
+      
+      // Phase 2: 캐시 저장 (성공한 읽기 작업)
+      if (!response.error && (mcpRequest.method === 'tools/list' || mcpRequest.method === 'resources/list')) {
+        await mcpCache.set(serviceName, mcpRequest.method, mcpRequest.params, response);
+        logger.info(`[Cache SET] ${serviceName}.${mcpRequest.method}`);
+      }
+      
+      // Phase 2: 성공 메트릭 기록
+      metricsCollector.recordRequest({
+        service: serviceName,
+        method: mcpRequest.method,
+        duration: Date.now() - startTime,
+        success: true,
+        cacheHit: false,
+        circuitState: breaker.getState()
+      });
+      
       return response;
+      
     } catch (error: any) {
       logger.error(`Error executing ${serviceName}:`, error);
+      
+      // Phase 2: 실패 메트릭 기록
+      metricsCollector.recordRequest({
+        service: serviceName,
+        method: mcpRequest.method,
+        duration: Date.now() - startTime,
+        success: false,
+        error: error.message
+      });
+      
       return {
         jsonrpc: '2.0',
         id: mcpRequest.id,
@@ -177,8 +342,8 @@ export class MCPPersistentRouter {
             protocolVersion: '2024-11-05',
             capabilities: {},
             clientInfo: {
-              name: 'mcp-router',
-              version: '1.0.0'
+              name: 'mcp-router-enhanced',
+              version: '2.0.0'
             }
           }
         };
@@ -205,7 +370,7 @@ export class MCPPersistentRouter {
       if (line.trim()) {
         logger.debug(`Raw line received: ${line}`);
         try {
-          // Enhanced JSON parsing with recovery
+          // Enhanced JSON parsing with recovery (Phase 1 fix)
           let cleanedLine = line.trim();
           
           // Fix common JSON issues
@@ -245,15 +410,15 @@ export class MCPPersistentRouter {
     }
   }
 
-  private async sendRequest(mcpProcess: MCPProcess, request: any): Promise<any> {
+  private async sendRequest(mcpProcess: MCPProcess | any, request: any): Promise<any> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         mcpProcess.pendingRequests.delete(request.id);
         reject(new Error('Request timeout'));
-      }, parseInt(process.env.REQUEST_TIMEOUT || '600000')); // Increased to 10 minutes for complex operations
+      }, parseInt(process.env.REQUEST_TIMEOUT || '600000')); // 10 minutes (Phase 1 fix)
 
       logger.info(`Sending request with ID: ${request.id}, method: ${request.method}`);
-      mcpProcess.pendingRequests.set(request.id, (response) => {
+      mcpProcess.pendingRequests.set(request.id, (response: any) => {
         clearTimeout(timeout);
         resolve(response);
       });
@@ -353,10 +518,51 @@ export class MCPPersistentRouter {
 
   async shutdown() {
     clearInterval(this.cleanupInterval);
+    
+    // Phase 2: 커넥션 풀 종료
+    if (process.env.ENABLE_CONNECTION_POOL === 'true') {
+      await connectionPool.shutdown();
+    }
+    
+    // Phase 3: Service Manager 종료
+    if (this.serviceManager) {
+      this.serviceManager.shutdown();
+    }
+    
     for (const [serviceName, mcpProcess] of this.processes) {
       logger.info(`Shutting down process: ${serviceName}`);
       mcpProcess.process.kill('SIGTERM');
     }
     this.processes.clear();
+    
+    // Phase 2: 메트릭 최종 리포트
+    const finalMetrics = metricsCollector.getSummary();
+    logger.info('[Phase 2] Final metrics:', finalMetrics);
+    
+    // Phase 3: Dynamic Discovery 종료
+    logger.info('[Phase 3] Dynamic Service Discovery shutdown complete');
+  }
+  
+  // Phase 2 + Phase 3: 상태 조회 메서드
+  async getStatus(): Promise<any> {
+    // Ensure initialized for Phase 3
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    
+    return {
+      processes: Array.from(this.processes.keys()),
+      cache: mcpCache.getStatus(),
+      metrics: metricsCollector.getSummary(),
+      circuitBreakers: circuitManager.getAllStatus(),
+      connectionPool: process.env.ENABLE_CONNECTION_POOL === 'true' ? 
+        connectionPool.getStatus() : 'disabled',
+      // Phase 3: Dynamic Service Discovery status
+      dynamicDiscovery: {
+        enabled: process.env.ENABLE_DYNAMIC_DISCOVERY !== 'false',
+        services: this.serviceManager ? this.serviceManager.getServiceStatus() : null,
+        count: this.serviceManager ? this.serviceManager.getServiceCount() : null
+      }
+    };
   }
 }
