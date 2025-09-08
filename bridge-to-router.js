@@ -1,304 +1,399 @@
 #!/usr/bin/env node
+
 /**
- * Task Tool to MCP Router Bridge
+ * MCP Bridge to Router for AI Tools (Task Tool Integration)
  * 
- * This bridge enables Claude Code's Task tool to communicate with the MCP Router,
- * providing 91.7% success rate for complex operations through context preservation.
+ * This bridge enables Claude Code sessions to access MCP services
+ * through the centralized MCP Router at port 3100.
  * 
- * Usage:
- * 1. Place this file in your project root
- * 2. Add to .mcp.json configuration
- * 3. Use Task tool in Claude Code conversations
+ * It translates stdio-based MCP protocol to HTTP calls to the router
+ * and provides special handling for the Task tool.
  */
 
+const readline = require('readline');
 const http = require('http');
 const { spawn } = require('child_process');
 
-class TaskMCPBridge {
-  constructor() {
-    this.routerUrl = process.env.MCP_ROUTER_URL || 'http://localhost:3100';
-    this.context = new Map(); // Preserve context between calls
-  }
+// Configuration from environment or defaults
+const MCP_ROUTER_URL = process.env.MCP_ROUTER_URL || 'http://localhost:3100';
+const PROJECT_NAME = process.env.PROJECT_NAME || 'KFoodTimerMobile';
+const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
+const ENABLE_AI_FEATURES = process.env.ENABLE_AI_FEATURES === 'true';
 
-  /**
-   * Map natural language to MCP service names
-   */
-  getServiceMapping() {
-    return {
-      // Analysis and thinking
-      'analyze': 'clear-thought',
-      'think': 'stochastic-thinking',
-      'reason': 'clear-thought',
-      'evaluate': 'stochastic-thinking',
-      
-      // Development tools
-      'search': 'github',
-      'github': 'github',
-      'test': 'playwright',
-      'browser': 'playwright',
-      'debug': 'nodejs-debugger',
-      
-      // Code quality
-      'check': 'code-checker',
-      'quality': 'code-checker',
-      'lint': 'code-checker',
-      
-      // Infrastructure
-      'docker': 'docker',
-      'container': 'docker',
-      'deploy': 'vercel',
-      
-      // Data and search
-      'database': 'supabase',
-      'db': 'supabase',
-      'search-web': 'serper-search',
-      
-      // Task management
-      'task': 'taskmaster-ai',
-      'plan': 'taskmaster-ai',
-      'organize': 'taskmaster-ai'
+// Parse router URL
+const routerUrl = new URL(MCP_ROUTER_URL);
+const ROUTER_HOST = routerUrl.hostname;
+const ROUTER_PORT = routerUrl.port || 80;
+
+// Logging utility
+const log = (level, message, data = null) => {
+  if (LOG_LEVEL === 'debug' || (LOG_LEVEL === 'info' && level !== 'debug')) {
+    const timestamp = new Date().toISOString();
+    const logMessage = {
+      timestamp,
+      level,
+      project: PROJECT_NAME,
+      message,
+      ...(data && { data })
     };
+    console.error(`[BRIDGE] ${JSON.stringify(logMessage)}`);
   }
+};
 
-  /**
-   * Parse task name to identify MCP service and action
-   */
-  parseTaskName(taskName) {
-    const words = taskName.toLowerCase().split(' ');
-    const serviceMap = this.getServiceMapping();
-    
-    // Find matching service
-    for (const word of words) {
-      if (serviceMap[word]) {
-        return {
-          service: serviceMap[word],
-          action: words.filter(w => w !== word).join(' ')
-        };
-      }
+// Initialize readline for stdio communication
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+// Request ID counter
+let requestIdCounter = 1;
+
+// Active requests map
+const activeRequests = new Map();
+
+/**
+ * Send JSON-RPC response to stdout
+ */
+function sendResponse(response) {
+  const responseStr = JSON.stringify(response);
+  log('debug', 'Sending response', { id: response.id, method: response.method });
+  console.log(responseStr);
+}
+
+/**
+ * Send JSON-RPC error response
+ */
+function sendError(id, code, message, data = null) {
+  const error = {
+    jsonrpc: '2.0',
+    id,
+    error: {
+      code,
+      message,
+      ...(data && { data })
     }
-    
-    // Default to first word as service
-    return {
-      service: words[0],
-      action: words.slice(1).join(' ')
-    };
-  }
+  };
+  sendResponse(error);
+}
 
-  /**
-   * Preserve context for multi-step operations
-   */
-  updateContext(service, result) {
-    if (!this.context.has(service)) {
-      this.context.set(service, []);
-    }
-    
-    const history = this.context.get(service);
-    history.push({
-      timestamp: Date.now(),
-      result: result
-    });
-    
-    // Keep last 10 results for context
-    if (history.length > 10) {
-      history.shift();
-    }
-  }
-
-  /**
-   * Get relevant context for service
-   */
-  getContext(service) {
-    return this.context.get(service) || [];
-  }
-
-  /**
-   * Handle Task tool request
-   */
-  async handleTaskRequest(taskName, params) {
-    const { service, action } = this.parseTaskName(taskName);
-    
-    // Include context in request
-    const context = this.getContext(service);
-    const enrichedParams = {
-      ...params,
-      context: context,
-      action: action
-    };
-    
-    try {
-      // Call MCP Router
-      const response = await this.callMCPRouter(service, enrichedParams);
-      
-      // Update context with result
-      this.updateContext(service, response);
-      
-      return response;
-    } catch (error) {
-      console.error(`Bridge error: ${error.message}`);
-      throw error;
-    }
-  }
-
-  /**
-   * Call MCP Router with proper formatting
-   */
-  async callMCPRouter(service, params) {
-    const url = `${this.routerUrl}/mcp/${service}`;
-    
-    const requestBody = JSON.stringify({
+/**
+ * Make HTTP request to MCP Router
+ */
+function callRouter(serviceName, method, params) {
+  return new Promise((resolve, reject) => {
+    const path = `/mcp/${serviceName}`;
+    const requestData = JSON.stringify({
       jsonrpc: '2.0',
-      id: `task-${Date.now()}`,
-      method: 'tools/call',
-      params: params
+      id: requestIdCounter++,
+      method,
+      params
+    });
+
+    const options = {
+      hostname: ROUTER_HOST,
+      port: ROUTER_PORT,
+      path,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(requestData),
+        'X-Project-Name': PROJECT_NAME,
+        'X-Bridge-Version': '1.0.0'
+      }
+    };
+
+    log('debug', `Calling router: ${serviceName}/${method}`, { params });
+
+    const req = http.request(options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        try {
+          const response = JSON.parse(data);
+          if (response.error) {
+            reject(new Error(response.error.message || 'Router error'));
+          } else {
+            resolve(response.result);
+          }
+        } catch (e) {
+          reject(new Error(`Invalid response from router: ${e.message}`));
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      log('error', `Router request failed: ${error.message}`);
+      reject(error);
+    });
+
+    req.write(requestData);
+    req.end();
+  });
+}
+
+/**
+ * Handle Task tool requests
+ * Special handling for AI task delegation
+ */
+async function handleTaskTool(params) {
+  const { description, prompt, subagent_type } = params;
+  
+  log('info', `Task tool invoked: ${description}`, { subagent_type });
+  
+  // Map subagent_type to MCP service
+  const serviceMap = {
+    'general-purpose': 'clear-thought',
+    'stochastic': 'stochastic-thinking',
+    'code-analysis': 'ast-grep',
+    'web-search': 'web',
+    'docker': 'docker',
+    'github': 'github'
+  };
+  
+  const serviceName = serviceMap[subagent_type] || 'clear-thought';
+  
+  try {
+    // Call the appropriate MCP service through the router
+    const result = await callRouter(serviceName, 'process', {
+      prompt,
+      context: {
+        project: PROJECT_NAME,
+        task: description,
+        ai_features: ENABLE_AI_FEATURES
+      }
     });
     
-    return new Promise((resolve, reject) => {
-      const options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(requestBody)
-        }
-      };
-      
-      const req = http.request(url, options, (res) => {
-        let data = '';
-        
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        
-        res.on('end', () => {
-          try {
-            const result = JSON.parse(data);
-            if (result.error) {
-              reject(new Error(result.error.message));
-            } else {
-              resolve(result.result);
+    return {
+      success: true,
+      service: serviceName,
+      result
+    };
+  } catch (error) {
+    log('error', `Task tool error: ${error.message}`);
+    return {
+      success: false,
+      error: error.message,
+      service: serviceName
+    };
+  }
+}
+
+/**
+ * Handle incoming JSON-RPC requests
+ */
+async function handleRequest(request) {
+  const { id, method, params } = request;
+  
+  log('debug', `Handling request: ${method}`, { id });
+  
+  try {
+    switch (method) {
+      case 'initialize':
+        // Respond with bridge capabilities
+        sendResponse({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            protocolVersion: '1.0',
+            capabilities: {
+              tools: {
+                Task: {
+                  description: 'AI task delegation through MCP Router',
+                  inputSchema: {
+                    type: 'object',
+                    properties: {
+                      description: { type: 'string' },
+                      prompt: { type: 'string' },
+                      subagent_type: { type: 'string' }
+                    },
+                    required: ['description', 'prompt', 'subagent_type']
+                  }
+                }
+              }
+            },
+            serverInfo: {
+              name: 'mcp-router-bridge',
+              version: '1.0.0',
+              project: PROJECT_NAME,
+              routerUrl: MCP_ROUTER_URL
             }
-          } catch (e) {
-            reject(new Error(`Invalid JSON response: ${data}`));
           }
         });
-      });
-      
-      req.on('error', reject);
-      req.write(requestBody);
-      req.end();
-    });
-  }
-
-  /**
-   * Start the bridge in stdio mode for Claude Code
-   */
-  startStdioMode() {
-    process.stdin.setEncoding('utf8');
-    
-    let buffer = '';
-    
-    process.stdin.on('data', (chunk) => {
-      buffer += chunk;
-      
-      // Process complete JSON messages
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-      
-      for (const line of lines) {
-        if (line.trim()) {
-          this.processMessage(line.trim());
-        }
-      }
-    });
-    
-    process.stdin.on('end', () => {
-      process.exit(0);
-    });
-  }
-
-  /**
-   * Process incoming message from Claude Code
-   */
-  async processMessage(message) {
-    try {
-      const request = JSON.parse(message);
-      
-      if (request.method === 'tools/list') {
-        // Return available tools
-        this.sendResponse({
-          id: request.id,
+        break;
+        
+      case 'tools/list':
+        // List available tools
+        sendResponse({
+          jsonrpc: '2.0',
+          id,
           result: {
-            tools: Object.keys(this.getServiceMapping()).map(key => ({
-              name: key,
-              description: `Access ${this.getServiceMapping()[key]} MCP service`,
+            tools: [{
+              name: 'Task',
+              description: 'AI task delegation through MCP Router',
               inputSchema: {
                 type: 'object',
                 properties: {
-                  prompt: { type: 'string' }
-                }
+                  description: { type: 'string' },
+                  prompt: { type: 'string' },
+                  subagent_type: { type: 'string' }
+                },
+                required: ['description', 'prompt', 'subagent_type']
               }
-            }))
+            }]
           }
         });
-      } else if (request.method === 'tools/call') {
-        // Handle tool call
-        const result = await this.handleTaskRequest(
-          request.params.name,
-          request.params.arguments
-        );
+        break;
         
-        this.sendResponse({
-          id: request.id,
-          result: result
-        });
+      case 'tools/call':
+        // Handle tool invocation
+        if (params.name === 'Task') {
+          const result = await handleTaskTool(params.arguments);
+          sendResponse({
+            jsonrpc: '2.0',
+            id,
+            result: {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(result, null, 2)
+                }
+              ]
+            }
+          });
+        } else {
+          sendError(id, -32601, `Unknown tool: ${params.name}`);
+        }
+        break;
+        
+      case 'notifications/initialized':
+        // Client is ready
+        log('info', 'Bridge initialized successfully');
+        break;
+        
+      case 'shutdown':
+        // Clean shutdown
+        log('info', 'Shutting down bridge');
+        process.exit(0);
+        break;
+        
+      default:
+        // Unknown method - try to route to MCP services
+        if (method.startsWith('mcp/')) {
+          const [, serviceName, serviceMethod] = method.split('/');
+          try {
+            const result = await callRouter(serviceName, serviceMethod, params);
+            sendResponse({
+              jsonrpc: '2.0',
+              id,
+              result
+            });
+          } catch (error) {
+            sendError(id, -32603, `Router error: ${error.message}`);
+          }
+        } else {
+          sendError(id, -32601, `Method not found: ${method}`);
+        }
+    }
+  } catch (error) {
+    log('error', `Request handling error: ${error.message}`, { method });
+    sendError(id, -32603, `Internal error: ${error.message}`);
+  }
+}
+
+/**
+ * Health check for router connection
+ */
+async function checkRouterConnection() {
+  try {
+    const options = {
+      hostname: ROUTER_HOST,
+      port: ROUTER_PORT,
+      path: '/health',
+      method: 'GET',
+      timeout: 5000
+    };
+    
+    return new Promise((resolve) => {
+      const req = http.request(options, (res) => {
+        resolve(res.statusCode === 200);
+      });
+      
+      req.on('error', () => resolve(false));
+      req.on('timeout', () => {
+        req.destroy();
+        resolve(false);
+      });
+      
+      req.end();
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Main initialization
+ */
+async function initialize() {
+  log('info', 'Starting MCP Router Bridge', {
+    project: PROJECT_NAME,
+    router: MCP_ROUTER_URL,
+    aiFeatures: ENABLE_AI_FEATURES
+  });
+  
+  // Check router connection
+  const isConnected = await checkRouterConnection();
+  if (!isConnected) {
+    log('warn', 'Router not responding at ' + MCP_ROUTER_URL);
+    log('info', 'Bridge will attempt to reconnect when requests arrive');
+  } else {
+    log('info', 'Router connection verified');
+  }
+  
+  // Process incoming JSON-RPC requests
+  rl.on('line', (line) => {
+    try {
+      const request = JSON.parse(line);
+      if (request.jsonrpc === '2.0') {
+        handleRequest(request);
+      } else {
+        log('warn', 'Invalid JSON-RPC version', { received: request.jsonrpc });
       }
     } catch (error) {
-      console.error('Process message error:', error);
-      this.sendError(request?.id || 'unknown', error.message);
+      log('error', `Failed to parse request: ${error.message}`, { line });
     }
-  }
-
-  /**
-   * Send response to Claude Code
-   */
-  sendResponse(response) {
-    const message = JSON.stringify({
-      jsonrpc: '2.0',
-      ...response
-    });
-    
-    process.stdout.write(message + '\n');
-  }
-
-  /**
-   * Send error to Claude Code
-   */
-  sendError(id, message) {
-    this.sendResponse({
-      id: id,
-      error: {
-        code: -32603,
-        message: message
-      }
-    });
-  }
+  });
+  
+  // Handle process termination
+  process.on('SIGINT', () => {
+    log('info', 'Received SIGINT, shutting down');
+    process.exit(0);
+  });
+  
+  process.on('SIGTERM', () => {
+    log('info', 'Received SIGTERM, shutting down');
+    process.exit(0);
+  });
+  
+  // Handle uncaught errors
+  process.on('uncaughtException', (error) => {
+    log('error', `Uncaught exception: ${error.message}`, { stack: error.stack });
+    process.exit(1);
+  });
+  
+  process.on('unhandledRejection', (reason, promise) => {
+    log('error', 'Unhandled rejection', { reason, promise });
+  });
 }
 
 // Start the bridge
-if (require.main === module) {
-  const bridge = new TaskMCPBridge();
-  
-  // Check if MCP Router is accessible
-  http.get(`${bridge.routerUrl}/health`, (res) => {
-    if (res.statusCode === 200) {
-      console.error('Task-MCP Bridge: Connected to MCP Router');
-      bridge.startStdioMode();
-    } else {
-      console.error(`Task-MCP Bridge: MCP Router not healthy (status: ${res.statusCode})`);
-      process.exit(1);
-    }
-  }).on('error', (err) => {
-    console.error(`Task-MCP Bridge: Cannot connect to MCP Router at ${bridge.routerUrl}`);
-    console.error('Please ensure Docker is running and MCP Router is started');
-    process.exit(1);
-  });
-}
+initialize().catch((error) => {
+  log('error', `Failed to initialize bridge: ${error.message}`);
+  process.exit(1);
+});
