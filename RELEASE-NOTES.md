@@ -1,5 +1,13 @@
 # Release Notes
 
+## v1.2.0 (2025-09-08)
+- Added: Enhanced AI bridge (`bridge-to-router-ai.js`) for improved task handling
+- Updated: MCP Router with Phase 2 & 3 enhancements (Cache, Circuit Breaker, Connection Pool)
+- Added: Dynamic Service Discovery for automatic MCP detection
+- Improved: Enhanced error handling and reliability features
+- Updated: Docker configuration with latest optimizations
+- Added: Pre-compiled router distribution for immediate deployment
+
 ## v1.1.1 (2025-09-08)
 - Fixed: Bridge-to-router.js enhanced MCP protocol handling
 - Improved: Better stdio/HTTP protocol translation
